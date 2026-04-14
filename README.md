@@ -62,4 +62,11 @@ The platform features a **15% advance payment system**, **48-hour refund policy*
 | **Deployment** | Render (Backend), Vercel (Frontend) | - |
 
 ---
+Thank you.
+
+Best regards,
+
+Vipul Thakur
+MCA - AIML (2024-2026)
+Chandigarh University, Mohali
 
