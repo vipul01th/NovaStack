@@ -3,7 +3,6 @@
 ![NovaStack Banner](https://novastack.me/logo.png)
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-ff6b35?style=for-the-badge&logo=vercel)](https://novastack.me)
-[![Backend API](https://img.shields.io/badge/Backend-API-10b981?style=for-the-badge&logo=render)](https://novastack-backend.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ---
