@@ -2,7 +2,7 @@
 
 ![NovaStack Banner](https://novastack.me/logo.png)
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-ff6b35?style=for-the-badge&logo=vercel)](https://novastack.me)
+[![Live](https://img.shields.io/badge/Live-Demo-ff6b35?style=for-the-badge&logo=vercel)](https://novastack.me)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ---
@@ -13,7 +13,7 @@
 
 The platform features a **15% advance payment system**, **48-hour refund policy**, real-time order tracking, admin dashboard, and integrated chat support.
 
-🔗 **Live Demo:** [https://novastack.me](https://novastack.me)
+🔗 **Live:** [https://novastack.me](https://novastack.me)
 
 ---
 
@@ -63,4 +63,3 @@ The platform features a **15% advance payment system**, **48-hour refund policy*
 
 ---
 
-## 📁 Project Structure
