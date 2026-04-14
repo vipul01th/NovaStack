@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>My Orders - NovaStack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="icon" type="logo/jpeg" href="logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f0c1a 0%, #1a162a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        nav {
+            background: rgba(26, 22, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .logo i { font-size: 1.3rem; background: none; -webkit-text-fill-color: #ff6b35; color: #ff6b35; }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover, .nav-links a.active { color: #ff6b35; }
+        
+        .profile-section { position: relative; cursor: pointer; }
+        
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.08);
+            border-radius: 40px;
+            transition: all 0.3s;
+        }
+        
+        .profile-trigger:hover { background: rgba(255,255,255,0.15); }
+        
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .profile-name { font-size: 0.9rem; font-weight: 500; color: white; }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: #1a162a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            min-width: 220px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            animation: fadeInDown 0.2s ease;
+            overflow: hidden;
+        }
+        
+        .profile-dropdown.show { display: block; }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dropdown-item {
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .dropdown-item:hover { background: rgba(255,255,255,0.1); color: #ff6b35; }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item i { width: 20px; font-size: 1rem; }
+        .dropdown-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 0.3rem 0; }
+        .logout-btn-dropdown { color: #ef4444; }
+        .logout-btn-dropdown:hover { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Syne', sans-serif;
+        }
+        
+        .btn-new-order {
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            color: white;
+            text-decoration: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .btn-new-order:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,107,53,0.4); }
+        
+        .orders-grid { display: grid; gap: 1.5rem; }
+        
+        .order-card {
+            background: rgba(26, 22, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .order-card:hover {
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .order-status {
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-payment_received { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-in_progress { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .status-ready_for_balance { background: rgba(255, 107, 53, 0.2); color: #ff6b35; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-delivered { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        .order-details {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+        
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .service-info { flex: 1; }
+        .service-info h3 { margin-bottom: 0.3rem; font-size: 1.1rem; }
+        .service-price { color: #ff6b35; font-weight: 700; font-size: 1.1rem; }
+        .order-date { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.3rem; }
+        
+        .customization-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .customization-panel h4 {
+            margin-bottom: 0.5rem;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .customization-item {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            padding: 0.25rem 0;
+        }
+        
+        .customization-item strong { color: #ff6b35; min-width: 100px; }
+        
+        .timeline-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-items { display: flex; flex-direction: column; gap: 0.8rem; }
+        
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 0.5rem;
+            border-left: 2px solid rgba(255,107,53,0.3);
+            margin-left: 0.5rem;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #ff6b35;
+            border-radius: 50%;
+            position: absolute;
+            left: -6px;
+            top: 0.8rem;
+        }
+        
+        .timeline-status { font-weight: 600; color: #ff6b35; min-width: 120px; font-size: 0.8rem; }
+        .timeline-message { color: rgba(255,255,255,0.8); flex: 1; font-size: 0.85rem; }
+        .timeline-time { font-size: 0.7rem; color: rgba(255,255,255,0.5); min-width: 100px; }
+        
+        .payment-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            color: #10b981;
+            font-size: 0.9rem;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .deliverables-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid #10b981;
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .deliverables-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #10b981;
+            font-size: 0.9rem;
+        }
+        
+        .deliverable-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .btn-download {
+            background: #10b981;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-download:hover { background: #059669; transform: translateY(-1px); }
+        
+        .preview-badge {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid #ff6b35;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ff6b35;
+        }
+        
+        .btn-balance {
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-balance:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,107,53,0.4); }
+        
+        .btn-chat, .btn-cancel, .btn-view, .btn-request-revision {
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            border: 1px solid;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-chat { background: rgba(16, 185, 129, 0.1); border-color: #10b981; color: #10b981; }
+        .btn-chat:hover { background: #10b981; color: white; }
+        .btn-view { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #3b82f6; }
+        .btn-view:hover { background: #3b82f6; color: white; }
+        .btn-cancel { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444; }
+        .btn-cancel:hover { background: #ef4444; color: white; }
+        .btn-request-revision { background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #f59e0b; }
+        .btn-request-revision:hover { background: #f59e0b; color: white; }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(26, 22, 42, 0.5);
+            border-radius: 24px;
+        }
+        
+        .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: #1a162a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+        }
+        
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 1rem; }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 0.8rem 1.5rem;
+            background: #10b981;
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+            max-width: 90vw;
+            text-align: center;
+        }
+        
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #ef4444; }
+        .toast.warning { background: #f59e0b; }
+        
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            background: #1a162a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .chat-order-id { font-size: 0.75rem; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 20px; }
+        .chat-close { margin-left: auto; cursor: pointer; padding: 0 5px; }
+        .chat-body { height: 450px; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; background: #0f0c1a; }
+        
+        .message { margin-bottom: 15px; max-width: 80%; clear: both; }
+        .message.user { float: right; }
+        .message.admin { float: left; }
+        .message-content {
+            padding: 10px 15px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            word-wrap: break-word;
+            font-size: 0.85rem;
+        }
+        .message.user .message-content { background: linear-gradient(135deg, #ff6b35, #f7c531); }
+        .message-time { font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 3px; }
+        
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 10px;
+            background: #1a162a;
+        }
+        
+        .chat-input-area textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        
+        .chat-input-area button {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #ff6b35, #f7c531);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        .clearfix::after { content: ""; clear: both; display: table; }
+        
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; }
+            .nav-links { display: none; }
+            .nav-links.mobile-show {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: #1a162a;
+                padding: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .mobile-menu-btn { display: block; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+            .container { padding: 0 1rem; margin: 1rem auto; }
+            .page-header { flex-direction: column; text-align: center; }
+            .order-card { padding: 1rem; }
+            .order-details { flex-direction: column; align-items: center; text-align: center; }
+            .service-icon { width: 50px; height: 50px; font-size: 1.5rem; }
+            .timeline-item { flex-direction: column; }
+            .timeline-status, .timeline-time { min-width: auto; }
+            .order-actions { flex-direction: column; }
+            .order-actions button { width: 100%; justify-content: center; }
+            .chat-widget { width: 320px; bottom: 10px; right: 10px; }
+            .profile-trigger .profile-name { display: none; }
+            .profile-dropdown { right: -10px; min-width: 200px; }
+        }
+        
+        @media (min-width: 769px) { .mobile-menu-btn { display: none; } }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: #ff6b35; border-radius: 10px; }
+        
+        .tracking-badge {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .tracking-step {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+        }
+        
+        .tracking-step.completed { color: #10b981; }
+        .tracking-step.active { color: #ff6b35; font-weight: 600; }
+        .tracking-step.pending { color: rgba(255,255,255,0.4); }
+        
+        .access-denied {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            color: #ef4444;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo"><i class="fas fa-code"></i> Nova<span>Stack</span></a>
+        <div class="nav-links" id="navLinks">
+            <a href="services.html"><i class="fas fa-cube"></i> Services</a>
+            <a href="my-orders.html" class="active"><i class="fas fa-shopping-bag"></i> My Orders</a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+        </div>
+        <div class="profile-section">
+            <div class="profile-trigger" onclick="toggleProfileDropdown()">
+                <div class="profile-avatar" id="profileAvatar">U</div>
+                <span class="profile-name" id="profileName">User</span>
+                <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: rgba(255,255,255,0.6);"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="dropdown-item"><i class="fas fa-user"></i><span id="dropdownUserName">User Name</span></div>
+                <div class="dropdown-item"><i class="fas fa-envelope"></i><span id="dropdownUserEmail">user@example.com</span></div>
+                <div class="dropdown-divider"></div>
+                <a href="services.html" class="dropdown-item"><i class="fas fa-cube"></i><span>Browse Services</span></a>
+                <a href="my-orders.html" class="dropdown-item"><i class="fas fa-shopping-bag"></i><span>My Orders</span></a>
+                <a href="cart.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></a>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item logout-btn-dropdown" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
+            </div>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+            <a href="services.html" class="btn-new-order"><i class="fas fa-plus"></i> New Order</a>
+        </div>
+        
+        <div id="loading" style="display: none;"><div class="spinner"></div><div style="text-align: center;">Loading your orders...</div></div>
+        <div id="orders-container" class="orders-grid"></div>
+    </div>
+    
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" onclick="toggleChat()">
+            <i class="fas fa-comments"></i><span>Support Chat</span>
+            <span class="chat-order-id" id="chatOrderIdDisplay"></span>
+            <div class="chat-close" onclick="closeChatWidget(event)"><i class="fas fa-times"></i></div>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-messages" id="chatMessages"><div style="text-align:center;padding:1rem;">Select an order to start chatting</div></div>
+            <div class="chat-input-area">
+                <textarea id="chatMessageInput" placeholder="Type your message..." rows="2" onkeypress="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+                <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="deliverablesModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-download"></i> Project Deliverables</h2>
+            <div id="deliverablesContent"></div>
+            <button onclick="closeModal()" class="btn-cancel" style="margin-top: 1rem; width: 100%;">Close</button>
+        </div>
+    </div>
+    
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-ban"></i> Cancel Order</h3>
+            <p>Please tell us why you want to cancel:</p>
+            <textarea id="cancelReason" rows="3" placeholder="Reason for cancellation..."></textarea>
+            <div class="modal-buttons">
+                <button onclick="submitCancel()" class="btn-balance">Submit</button>
+                <button onclick="closeModal()" class="btn-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="revisionModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-pencil-alt"></i> Request Revision</h3>
+            <p>Please describe what changes you'd like:</p>
+            <textarea id="revisionDetails" rows="5" placeholder="Describe the changes you want..."></textarea>
+            <div class="modal-buttons">
+                <button onclick="submitRevision()" class="btn-balance">Send Revision Request</button>
+                <button onclick="closeModal()" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = { API: 'https://novastack-backend.onrender.com' };
+        let currentOrderId = null;
+        let currentConversationId = null;
+        let messagePollInterval = null;
+        let currentUser = null;
+        
+        const Auth = {
+            getToken() { return localStorage.getItem('dc_token') || ''; },
+            getUser() { 
+                try { 
+                    const user = JSON.parse(localStorage.getItem('dc_user') || 'null'); 
+                    if (user) currentUser = user; 
+                    return user; 
+                } catch { return null; } 
+            },
+            isLoggedIn() { return !!this.getToken() && !!this.getUser(); }
+        };
+        
+        function toggleProfileDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('show');
+        }
+        
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('mobile-show');
+        }
+        
+        function showToast(message, type = 'success') {
+            let toast = document.querySelector('.toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+        
+        function updateProfileUI() {
+            const user = Auth.getUser();
+            if (user) {
+                const name = user.name || user.email?.split('@')[0] || 'User';
+                const initial = name.charAt(0).toUpperCase();
+                document.getElementById('profileAvatar').textContent = initial;
+                document.getElementById('profileName').textContent = name.length > 15 ? name.substring(0, 12) + '...' : name;
+                document.getElementById('dropdownUserName').textContent = name;
+                document.getElementById('dropdownUserEmail').textContent = user.email || '';
+            }
+        }
+        
+        async function loadOrders() {
+            const token = Auth.getToken();
+            if (!token) { 
+                window.location.href = 'login.html?redirect=my-orders.html'; 
+                return; 
+            }
+            
+            updateProfileUI();
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('orders-container').innerHTML = '';
+            
+            try {
+                const res = await fetch(`${CONFIG.API}/my-orders`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                renderOrders(data.orders || []);
+            } catch (error) {
+                document.getElementById('orders-container').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Orders</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadOrders()" style="margin-top:1rem; padding:0.5rem 1.5rem; background:#ff6b35; border:none; border-radius:40px; color:white; cursor:pointer;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function renderCustomization(customization) {
+            if (!customization || Object.keys(customization).length === 0) return '';
+            return `
+                <div class="customization-panel">
+                    <h4><i class="fas fa-sliders-h"></i> Customizations:</h4>
+                    ${Object.entries(customization).map(([key, value]) => `
+                        <div class="customization-item">
+                            <strong>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> 
+                            <span>${typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        async function loadTimeline(orderId) {
+            const token = Auth.getToken();
+            try {
+                const res = await fetch(`${CONFIG.API}/order/${orderId}/timeline`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const data = await res.json();
+                return data.data || [];
+            } catch { return []; }
+        }
+        
+        async function loadDeliverables(orderId) {
+            const token = Auth.getToken();
+            try {
+                const res = await fetch(`${CONFIG.API}/order/${orderId}/deliverables`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const data = await res.json();
+                
+                // Handle 403 gracefully - don't show error, just return no access
+                if (res.status === 403) {
+                    console.log(`🔒 No access to deliverables for order ${orderId}`);
+                    return { success: false, error: 'Payment required to access deliverables', status: 403 };
+                }
+                
+                if (!res.ok) {
+                    return { success: false, error: data.error || 'Failed to load', status: res.status };
+                }
+                
+                return { success: true, data: data.data };
+            } catch (error) { 
+                console.error('Network error loading deliverables:', error);
+                return { success: false, error: 'Network error', status: 0 }; 
+            }
+        }
+        
+        function getOrderTrackingSteps(status, paidPercent) {
+            const steps = [
+                { name: 'Order Placed', key: 'placed', completed: true },
+                { name: 'Payment Received', key: 'payment', completed: ['payment_received', 'in_progress', 'ready_for_balance', 'completed', 'delivered'].includes(status) || paidPercent >= 15 },
+                { name: 'In Progress', key: 'progress', completed: ['in_progress', 'ready_for_balance', 'completed', 'delivered'].includes(status) },
+                { name: 'Ready for Balance', key: 'balance', completed: ['ready_for_balance', 'completed', 'delivered'].includes(status) },
+                { name: 'Delivered', key: 'delivered', completed: ['delivered', 'completed'].includes(status) }
+            ];
+            return steps;
+        }
+        
+        function renderTracking(steps) {
+            return `
+                <div class="tracking-badge">
+                    <span><i class="fas fa-map-marker-alt"></i> Order Tracking</span>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${steps.map(step => `
+                            <span class="tracking-step ${step.completed ? 'completed' : (step.key === 'progress' ? 'active' : 'pending')}">
+                                <i class="fas ${step.completed ? 'fa-check-circle' : (step.key === 'progress' ? 'fa-spinner fa-pulse' : 'fa-circle')}"></i>
+                                ${step.name}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Replace your renderOrders function with this corrected version
+
+        function renderOrders(orders) {
+            const container = document.getElementById('orders-container');
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>No orders yet</h3>
+                        <p style="margin: 1rem 0;">Ready to start your first project?</p>
+                        <a href="services.html" class="btn-new-order">Browse Services</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => {
+                const total = order.price || 0;
+                const advancePaid = order.advance_paid || 0;
+                const totalPaid = order.total_paid || advancePaid;
+                const balanceDue = total - totalPaid;
+                const paidPercent = total > 0 ? (totalPaid / total) * 100 : 0;
+                const isFullPaid = totalPaid >= total;
+                
+                // 🔥 FIXED: Only show pay balance button when status is 'ready_for_balance' OR 'delivered' with balance due
+                const canPayBalance = (order.status === 'ready_for_balance' || (order.status === 'delivered' && balanceDue > 0)) && balanceDue > 0;
+                
+                // Cancel only for pending/payment_received and not fully paid
+                const canCancel = (order.status === 'pending' || order.status === 'payment_received') && !isFullPaid;
+                
+                // Preview access: advance paid AND admin marked preview_ready
+                const hasPreview = order.preview_ready && advancePaid > 0;
+                
+                // Full access: fully paid AND admin marked full_access_ready OR order completed
+                const hasFullAccess = (order.full_access_ready && isFullPaid) || order.status === 'completed';
+                
+                const isDelivered = order.status === 'delivered';
+                const canRequestRevision = (order.status === 'delivered' || order.status === 'completed') && !order.revision_requested;
+                
+                const trackingSteps = getOrderTrackingSteps(order.status, paidPercent);
+                
+                // Determine if deliverables section should show
+                const showDeliverables = hasPreview || hasFullAccess || isDelivered;
+                
+                return `
+                    <div class="order-card" id="order-${order.id}">
+                        <div class="order-header">
+                            <span class="order-id"><i class="fas fa-hashtag"></i> ORDER #${order.id.toString().slice(-6)}</span>
+                            <span class="order-status status-${order.status}">${order.status.replace(/_/g, ' ').toUpperCase()}</span>
+                        </div>
+                        
+                        ${renderTracking(trackingSteps)}
+                        
+                        <div class="order-details">
+                            <div class="service-icon">${order.services?.emoji || '💻'}</div>
+                            <div class="service-info">
+                                <h3>${order.services?.title || 'Custom Project'}</h3>
+                                <div class="service-price">₹${total.toLocaleString()}</div>
+                                <div class="order-date"><i class="fas fa-calendar"></i> Ordered: ${new Date(order.created_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        
+                        ${renderCustomization(order.customization)}
+                        
+                        ${order.requirements ? `
+                            <div class="customization-panel">
+                                <h4><i class="fas fa-file-alt"></i> Requirements:</h4>
+                                <p style="font-size: 0.85rem; line-height: 1.5;">${escapeHtml(order.requirements)}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="payment-card">
+                            <div class="payment-header"><i class="fas fa-credit-card"></i><strong>Payment Details</strong></div>
+                            <div class="payment-row"><span>Total Amount:</span><span>₹${total.toLocaleString()}</span></div>
+                            <div class="payment-row"><span>Advance Paid (15%):</span><span style="color: #10b981;">₹${advancePaid.toLocaleString()}</span></div>
+                            ${totalPaid > advancePaid ? `<div class="payment-row"><span>Balance Paid:</span><span style="color: #10b981;">₹${(totalPaid - advancePaid).toLocaleString()}</span></div>` : ''}
+                            <div class="payment-row"><span>Total Paid:</span><span style="color: #10b981;">₹${totalPaid.toLocaleString()}</span></div>
+                            ${balanceDue > 0 ? `<div class="payment-row"><span>Balance Due:</span><span style="color: #ff6b35;">₹${balanceDue.toLocaleString()}</span></div>` : '<div class="payment-row"><span>Balance Due:</span><span style="color: #10b981;">₹0 - Fully Paid</span></div>'}
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${paidPercent}%"></div></div>
+                            <div style="text-align: center; font-size: 0.7rem;">${Math.round(paidPercent)}% Paid</div>
+                        </div>
+                        
+                        ${canPayBalance ? `
+                            <div class="preview-badge" style="background: rgba(16,185,129,0.2); border-color: #10b981; color: #10b981;">
+                                <i class="fas fa-credit-card"></i>
+                                <span>💰 Balance Payment Required: ₹${balanceDue.toLocaleString()} to complete your order and get full access!</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${hasPreview && !hasFullAccess ? `
+                            <div class="preview-badge">
+                                <i class="fas fa-eye"></i>
+                                <span>🔍 Preview Access: You can view the live demo of your project!</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${hasFullAccess ? `
+                            <div class="preview-badge" style="background: rgba(16,185,129,0.2); border-color: #10b981; color: #10b981;">
+                                <i class="fas fa-check-circle"></i>
+                                <span>🎉 Full Access: All deliverables are now available for download!</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${isDelivered ? `
+                            <div class="preview-badge" style="background: rgba(139,92,246,0.2); border-color: #8b5cf6; color: #8b5cf6;">
+                                <i class="fas fa-box-open"></i>
+                                <span>📦 Project Delivered! Check your deliverables. Need changes? Request a revision.</span>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="timeline-section" id="timeline-${order.id}">
+                            <div class="timeline-header"><i class="fas fa-history"></i><strong>Order Timeline</strong></div>
+                            <div class="timeline-items" id="timeline-items-${order.id}"><div style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading timeline...</div></div>
+                        </div>
+                        
+                        ${showDeliverables ? `
+                            <div class="deliverables-section" id="deliverables-${order.id}">
+                                <div class="deliverables-header"><i class="fas fa-download"></i><strong>Project Deliverables</strong></div>
+                                <div id="deliverables-content-${order.id}"><div style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading deliverables...</div></div>
+                            </div>
+                        ` : `
+                            <div class="deliverables-section" style="background: rgba(255,107,53,0.05); border-color: #ff6b35;">
+                                <div class="deliverables-header" style="color: #ff6b35;"><i class="fas fa-lock"></i><strong>Deliverables Locked</strong></div>
+                                <div style="text-align: center; padding: 0.5rem; color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                                    ${!advancePaid ? '🔒 Make advance payment to unlock preview access.' : (balanceDue > 0 && !isFullPaid ? '💰 Complete balance payment to unlock full access to deliverables.' : '📦 Deliverables will appear once project is ready.')}
+                                </div>
+                            </div>
+                        `}
+                        
+                        <div class="order-actions">
+                            ${canPayBalance ? `
+                                <button class="btn-balance" onclick="payBalance(${order.id}, ${balanceDue})">
+                                    <i class="fas fa-credit-card"></i> 💰 Pay Balance ₹${balanceDue.toLocaleString()}
+                                </button>
+                            ` : ''}
+                            ${showDeliverables ? `
+                                <button class="btn-view" onclick="viewDeliverables(${order.id})">
+                                    <i class="fas fa-eye"></i> 📁 View Deliverables
+                                </button>
+                            ` : ''}
+                            <button class="btn-chat" onclick="openChat(${order.id})">
+                                <i class="fas fa-comment"></i> 💬 Chat Support
+                            </button>
+                            ${canRequestRevision ? `
+                                <button class="btn-request-revision" onclick="openRevisionModal(${order.id})">
+                                    <i class="fas fa-pencil-alt"></i> 🔄 Request Revision
+                                </button>
+                            ` : ''}
+                            ${canCancel ? `
+                                <button class="btn-cancel" onclick="openCancelModal(${order.id})">
+                                    <i class="fas fa-ban"></i> ❌ Cancel Order
+                                </button>
+                            ` : ''}
+                            <button class="btn-view" onclick="viewPaymentHistory(${order.id})">
+                                <i class="fas fa-history"></i> 📜 Payment History
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Load timeline for each order
+            orders.forEach(async order => {
+                const timeline = await loadTimeline(order.id);
+                renderTimeline(order.id, timeline);
+                
+                const total = order.price || 0;
+                const totalPaid = order.total_paid || order.advance_paid || 0;
+                const isFullPaid = totalPaid >= total;
+                const hasPreview = order.preview_ready && order.advance_paid > 0;
+                
+                if (hasPreview || isFullPaid || order.status === 'delivered') {
+                    const deliverablesResult = await loadDeliverables(order.id);
+                    renderDeliverables(order.id, deliverablesResult);
+                }
+            });
+        }
+        
+        function renderTimeline(orderId, timeline) {
+            const container = document.getElementById(`timeline-items-${orderId}`);
+            if (!container) return;
+            
+            if (timeline.length === 0) {
+                container.innerHTML = `<div class="timeline-item"><div class="timeline-status">Order Placed</div><div class="timeline-message">Order created successfully</div><div class="timeline-time">-</div></div>`;
+                return;
+            }
+            
+            container.innerHTML = timeline.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-status">${item.status.replace(/_/g, ' ').toUpperCase()}</div>
+                    <div class="timeline-message">${item.message || 'Status updated'}</div>
+                    <div class="timeline-time">${new Date(item.created_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderDeliverables(orderId, result) {
+            const container = document.getElementById(`deliverables-content-${orderId}`);
+            if (!container) return;
+            
+            if (!result.success) {
+                if (result.status === 403) {
+                    container.innerHTML = `
+                        <div class="access-denied">
+                            <i class="fas fa-lock"></i> 🔒 Access Restricted<br>
+                            <small>${result.error || 'Complete the balance payment to access deliverables.'}</small>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="access-denied"><i class="fas fa-exclamation-triangle"></i> ${result.error || 'Unable to load deliverables'}</div>`;
+                }
+                return;
+            }
+            
+            const data = result.data;
+            let html = '';
+            
+            if (data.live_url) {
+                html += `<div class="deliverable-item"><span><i class="fas fa-globe"></i> 🌐 Live Demo</span><a href="${data.live_url}" target="_blank" class="btn-download">View <i class="fas fa-external-link-alt"></i></a></div>`;
+            }
+            
+            if (data.github_repo && data.has_full_access) {
+                html += `<div class="deliverable-item"><span><i class="fab fa-github"></i> 📦 GitHub Repository</span><a href="${data.github_repo}" target="_blank" class="btn-download">View <i class="fas fa-external-link-alt"></i></a></div>`;
+            }
+            
+            if (data.source_code_url && data.has_full_access) {
+                html += `<div class="deliverable-item"><span><i class="fas fa-code"></i> 💾 Source Code</span><a href="${data.source_code_url}" download class="btn-download">Download <i class="fas fa-download"></i></a></div>`;
+            }
+            
+            if (data.documentation_url && data.has_full_access) {
+                html += `<div class="deliverable-item"><span><i class="fas fa-book"></i> 📚 Documentation</span><a href="${data.documentation_url}" target="_blank" class="btn-download">View <i class="fas fa-external-link-alt"></i></a></div>`;
+            }
+            
+            if (data.deliverables && data.deliverables.length > 0) {
+                data.deliverables.forEach(doc => {
+                    const canAccess = (doc.is_preview && !data.has_full_access) || (doc.is_full_access && data.has_full_access);
+                    if (canAccess) {
+                        html += `<div class="deliverable-item"><span><i class="fas fa-file"></i> 📄 ${doc.title}</span><a href="${doc.file_url}" download class="btn-download">Download</a></div>`;
+                    }
+                });
+            }
+            
+            if (data.delivery_notes) {
+                html += `<div style="margin-top: 0.8rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 12px;"><strong><i class="fas fa-sticky-note"></i> 📝 Delivery Notes:</strong><p style="margin-top: 0.3rem;">${escapeHtml(data.delivery_notes)}</p></div>`;
+            }
+            
+            if (data.message) {
+                html += `<div style="margin-top: 0.8rem; padding: 0.8rem; background: rgba(255,107,53,0.1); border-radius: 12px; color: #ff6b35;"><i class="fas fa-info-circle"></i> ℹ️ ${data.message}</div>`;
+            }
+            
+            container.innerHTML = html || '<p style="text-align: center;">📭 No deliverables available yet. Check back after payment.</p>';
+        }
+        
+        async function payBalance(orderId, amount) {
+            const token = Auth.getToken();
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            
+            if (!token) {
+                showToast('Please login to continue', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // First verify the order is ready for balance
+            try {
+                console.log(`🔍 Checking order ${orderId} status before payment...`);
+                const checkRes = await fetch(`${CONFIG.API}/my-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await checkRes.json();
+                const order = data.orders?.find(o => o.id === orderId);
+                
+                if (!order) {
+                    showToast('Order not found', 'error');
+                    return;
+                }
+                
+                console.log('Order status:', order.status);
+                console.log('Balance due:', amount);
+                
+                // 🔥 FIXED: Allow payment for 'ready_for_balance' OR 'delivered' with balance due
+                if (order.status !== 'ready_for_balance' && order.status !== 'delivered') {
+                    showToast(`❌ Cannot pay balance: Order is "${order.status}". Wait for admin to mark as ready.`, 'error');
+                    return;
+                }
+                
+                if (order.status === 'delivered' && amount > 0) {
+                    showToast(`💰 You can pay the remaining balance to complete your order!`, 'success');
+                }
+                
+                if (amount <= 0) {
+                    showToast(`✅ Order is already fully paid!`, 'success');
+                    return;
+                }
+                
+            } catch (err) {
+                console.error('Error checking order:', err);
+                // Continue anyway - let the backend decide
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating payment...';
+            
+            try {
+                console.log(`💰 Initiating balance payment for order ${orderId}, amount: ₹${amount}`);
+                
+                const res = await fetch(`${CONFIG.API}/order/${orderId}/pay-balance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                console.log('Response status:', res.status);
+                const data = await res.json();
+                console.log('Response data:', data);
+                
+                if (!res.ok) {
+                    throw new Error(data.error || `Server responded with ${res.status}`);
+                }
+                
+                const paymentData = data.data || data;
+                
+                if (!paymentData.key_id || !paymentData.razorpay_order_id) {
+                    throw new Error('Invalid payment data received from server');
+                }
+                
+                const options = {
+                    key: paymentData.key_id,
+                    amount: Math.round(amount * 100),
+                    currency: "INR",
+                    name: "NovaStack",
+                    description: `Balance Payment for Order #${orderId}`,
+                    order_id: paymentData.razorpay_order_id,
+                    handler: async function(response) {
+                        console.log('✅ Razorpay payment response:', response);
+                        await verifyBalancePayment(orderId, amount, response);
+                    },
+                    prefill: {
+                        name: Auth.getUser()?.name || '',
+                        email: Auth.getUser()?.email || '',
+                        contact: Auth.getUser()?.phone || ''
+                    },
+                    theme: {
+                        color: "#ff6b35",
+                        hide_topbar: false
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Payment modal closed by user');
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                            showToast('Payment cancelled', 'warning');
+                        },
+                        escape: true,
+                        backdropclose: false
+                    }
+                };
+                
+                console.log('Opening Razorpay checkout...');
+                const rzp = new Razorpay(options);
+                
+                rzp.on('payment.failed', function(response) {
+                    console.error('❌ Razorpay payment failed:', response.error);
+                    showToast('Payment failed: ' + (response.error.description || 'Please try again'), 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    
+                    // Log failure to backend
+                    fetch(`${CONFIG.API}/payment-failed`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            razorpay_order_id: paymentData.razorpay_order_id,
+                            error: response.error.code,
+                            error_description: response.error.description
+                        })
+                    }).catch(e => console.error('Failed to log error:', e));
+                });
+                
+                rzp.open();
+                
+            } catch (error) {
+                console.error('❌ Pay balance error:', error);
+                showToast('Error: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function showManualConfirm(orderId, amount, response) {
+            // Store for manual confirmation
+            localStorage.setItem('pending_balance_payment', JSON.stringify({
+                order_id: orderId,
+                amount: amount,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                timestamp: new Date().toISOString()
+            }));
+            
+            // Create manual confirm button if needed
+            const existingConfirm = document.getElementById('manual-balance-confirm');
+            if (!existingConfirm) {
+                const confirmDiv = document.createElement('div');
+                confirmDiv.id = 'manual-balance-confirm';
+                confirmDiv.style.cssText = `
+                    position: fixed;
+                    bottom: 80px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    padding: 12px 20px;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    z-index: 9999;
+                    box-shadow: 0 4px 15px rgba(16,185,129,0.4);
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                `;
+                confirmDiv.innerHTML = '<i class="fas fa-check-circle"></i> Payment Completed? Click to Confirm';
+                confirmDiv.onclick = () => manualConfirmBalance();
+                document.body.appendChild(confirmDiv);
+                
+                setTimeout(() => {
+                    if (confirmDiv) confirmDiv.remove();
+                }, 30000);
+            }
+        }
+
+        async function manualConfirmBalance() {
+            const pending = localStorage.getItem('pending_balance_payment');
+            if (!pending) {
+                showToast('No pending payment found', 'error');
+                return;
+            }
+            
+            const payment = JSON.parse(pending);
+            const token = Auth.getToken();
+            
+            try {
+                const res = await fetch(`${CONFIG.API}/verify-balance-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        order_id: payment.order_id,
+                        amount: payment.amount,
+                        razorpay_order_id: payment.razorpay_order_id,
+                        razorpay_payment_id: payment.razorpay_payment_id,
+                        razorpay_signature: payment.razorpay_signature
+                    })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('✅ Order completed!', 'success');
+                    localStorage.removeItem('pending_balance_payment');
+                    document.getElementById('manual-balance-confirm')?.remove();
+                    loadOrders();
+                } else {
+                    showToast('Still processing. Please wait a moment.', 'warning');
+                }
+            } catch (error) {
+                showToast('Could not verify. Admin will confirm shortly.', 'warning');
+            }
+        }
+        
+        async function viewPaymentHistory(orderId) {
+            const token = Auth.getToken();
+            if (!token) {
+                showToast('Please login to view payment history', 'error');
+                return;
+            }
+            
+            const modal = document.getElementById('deliverablesModal');
+            const content = document.getElementById('deliverablesContent');
+            
+            content.innerHTML = '<div class="spinner"></div><p style="text-align: center;">Loading payment history...</p>';
+            modal.style.display = 'flex';
+            document.querySelector('#deliverablesModal h2').innerHTML = '<i class="fas fa-history"></i> Payment History';
+            
+            try {
+                // Try to fetch payment history from the order's payment details
+                const res = await fetch(`${CONFIG.API}/order/${orderId}/payment-status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const orderRes = await fetch(`${CONFIG.API}/my-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const ordersData = await orderRes.json();
+                const order = ordersData.orders?.find(o => o.id === orderId);
+                
+                if (!order) {
+                    content.innerHTML = '<p style="color: #ef4444;">Order not found</p>';
+                    return;
+                }
+                
+                // Display payment information from the order data
+                let historyHtml = `
+                    <div style="margin-top: 0.5rem;">
+                        <div class="payment-card" style="margin-bottom: 1rem;">
+                            <div class="payment-header"><i class="fas fa-credit-card"></i> Payment Summary</div>
+                            <div class="payment-row"><span>Total Amount:</span><span>₹${(order.price || 0).toLocaleString()}</span></div>
+                            <div class="payment-row"><span>Advance Paid (15%):</span><span style="color: #10b981;">₹${(order.advance_paid || 0).toLocaleString()}</span></div>
+                            ${order.balance_paid ? `<div class="payment-row"><span>Balance Paid:</span><span style="color: #10b981;">₹${(order.balance_paid).toLocaleString()}</span></div>` : ''}
+                            <div class="payment-row"><span>Total Paid:</span><span style="color: #10b981;">₹${(order.total_paid || order.advance_paid || 0).toLocaleString()}</span></div>
+                            <div class="payment-row"><span>Balance Due:</span><span style="color: #ff6b35;">₹${((order.price || 0) - (order.total_paid || order.advance_paid || 0)).toLocaleString()}</span></div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${((order.total_paid || order.advance_paid || 0) / (order.price || 1) * 100)}%"></div></div>
+                        </div>
+                        <div class="timeline-section">
+                            <div class="timeline-header"><i class="fas fa-clock"></i> Payment Timeline</div>
+                            <div class="timeline-items">
+                                ${order.advance_paid_at ? `
+                                    <div class="timeline-item">
+                                        <div class="timeline-status">ADVANCE PAYMENT</div>
+                                        <div class="timeline-message">₹${order.advance_paid} paid successfully</div>
+                                        <div class="timeline-time">${new Date(order.advance_paid_at).toLocaleString()}</div>
+                                    </div>
+                                ` : ''}
+                                ${order.balance_paid_at ? `
+                                    <div class="timeline-item">
+                                        <div class="timeline-status">BALANCE PAYMENT</div>
+                                        <div class="timeline-message">₹${order.balance_paid} paid successfully</div>
+                                        <div class="timeline-time">${new Date(order.balance_paid_at).toLocaleString()}</div>
+                                    </div>
+                                ` : ''}
+                                ${!order.advance_paid_at && !order.balance_paid_at ? `
+                                    <div class="timeline-item">
+                                        <div class="timeline-status">PENDING</div>
+                                        <div class="timeline-message">No payments recorded yet</div>
+                                        <div class="timeline-time">-</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                content.innerHTML = historyHtml;
+                
+            } catch (error) {
+                console.error('Failed to load payment history:', error);
+                content.innerHTML = `<p style="color: #ef4444;">Error loading payment history: ${error.message}</p>`;
+            }
+        }
+
+        async function verifyBalancePayment(orderId, amount, response) {
+            const token = Auth.getToken();
+            const btn = document.querySelector(`button[onclick*="payBalance(${orderId}"]`);
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying payment...';
+            }
+            
+            try {
+                console.log(`🔍 Verifying balance payment for order ${orderId}...`);
+                
+                const res = await fetch(`${CONFIG.API}/verify-balance-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        amount: amount,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                });
+                
+                const data = await res.json();
+                console.log('Verification response:', data);
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Verification failed');
+                }
+                
+                showToast('✅ Balance payment successful! Order completed.', 'success');
+                
+                // Reload orders to show updated status
+                setTimeout(() => {
+                    loadOrders();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Balance verification failed:', error);
+                showToast('❌ Payment verification failed: ' + error.message, 'error');
+                
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-credit-card"></i> 💰 Pay Balance ₹' + amount;
+                }
+                
+                // Show manual confirmation option
+                showManualConfirm(orderId, amount, response);
+            }
+        }
+        
+        async function viewDeliverables(orderId) {
+            const token = Auth.getToken();
+            const modal = document.getElementById('deliverablesModal');
+            const content = document.getElementById('deliverablesContent');
+            
+            content.innerHTML = '<div class="spinner"></div><p style="text-align: center;">Loading deliverables...</p>';
+            modal.style.display = 'flex';
+            
+            try {
+                const res = await fetch(`${CONFIG.API}/order/${orderId}/deliverables`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (!data.success) {
+                    if (res.status === 403) {
+                        content.innerHTML = `<div class="access-denied"><i class="fas fa-lock"></i> 🔒 Access Restricted<br><small>${data.error || 'Complete the balance payment to access deliverables.'}</small></div>`;
+                    } else {
+                        content.innerHTML = `<p style="color: #ef4444;">${data.error}</p>`;
+                    }
+                    return;
+                }
+                
+                const deliverables = data.data;
+                let html = '';
+                
+                if (deliverables.live_url) {
+                    html += `<div class="deliverable-item"><span><i class="fas fa-globe"></i> 🌐 Live Demo</span><a href="${deliverables.live_url}" target="_blank" class="btn-download">View</a></div>`;
+                }
+                
+                if (deliverables.github_repo && deliverables.has_full_access) {
+                    html += `<div class="deliverable-item"><span><i class="fab fa-github"></i> 📦 GitHub Repository</span><a href="${deliverables.github_repo}" target="_blank" class="btn-download">View</a></div>`;
+                }
+                
+                if (deliverables.source_code_url && deliverables.has_full_access) {
+                    html += `<div class="deliverable-item"><span><i class="fas fa-code"></i> 💾 Source Code</span><a href="${deliverables.source_code_url}" download class="btn-download">Download</a></div>`;
+                }
+                
+                if (deliverables.documentation_url && deliverables.has_full_access) {
+                    html += `<div class="deliverable-item"><span><i class="fas fa-book"></i> 📚 Documentation</span><a href="${deliverables.documentation_url}" target="_blank" class="btn-download">View</a></div>`;
+                }
+                
+                if (deliverables.deliverables && deliverables.deliverables.length > 0) {
+                    deliverables.deliverables.forEach(doc => {
+                        const canAccess = (doc.is_preview && !deliverables.has_full_access) || (doc.is_full_access && deliverables.has_full_access);
+                        if (canAccess) {
+                            html += `<div class="deliverable-item"><span><i class="fas fa-file"></i> 📄 ${doc.title}</span><a href="${doc.file_url}" download class="btn-download">Download</a></div>`;
+                        }
+                    });
+                }
+                
+                if (deliverables.delivery_notes) {
+                    html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px;"><strong>📝 Delivery Notes:</strong><p style="margin-top: 0.5rem;">${deliverables.delivery_notes}</p></div>`;
+                }
+                
+                if (deliverables.message) {
+                    html += `<div style="margin-top: 1rem; padding: 1rem; background: rgba(255,107,53,0.1); border-radius: 12px; color: #ff6b35;"><i class="fas fa-info-circle"></i> ℹ️ ${deliverables.message}</div>`;
+                }
+                
+                content.innerHTML = html || '<p>📭 No deliverables available yet.</p>';
+                
+            } catch (error) {
+                content.innerHTML = `<p style="color: #ef4444;">Error loading deliverables: ${error.message}</p>`;
+            }
+        }
+        
+        function openChat(orderId) {
+            currentOrderId = orderId;
+            currentConversationId = `order_${orderId}`;
+            const chatWidget = document.getElementById('chatWidget');
+            document.getElementById('chatOrderIdDisplay').textContent = `Order #${orderId}`;
+            chatWidget.style.display = 'flex';
+            document.getElementById('chatBody').style.display = 'flex';
+            loadMessages();
+            startMessagePolling();
+        }
+        
+        async function loadMessages() {
+            if (!currentConversationId) return;
+            const token = Auth.getToken();
+            if (!token) return;
+            try {
+                const res = await fetch(`${CONFIG.API}/conversation/${currentConversationId}/messages`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.messages && data.messages.length > 0) {
+                        displayMessages(data.messages);
+                    } else {
+                        document.getElementById('chatMessages').innerHTML = '<div style="text-align:center;padding:1rem;">💬 No messages yet. Start the conversation!</div>';
+                    }
+                }
+            } catch (error) { console.error('Failed to load messages:', error); }
+        }
+        
+        function displayMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            let html = '';
+            messages.forEach(msg => {
+                const isUser = msg.sender_role === 'user';
+                const time = msg.created_at ? new Date(msg.created_at).toLocaleString() : new Date().toLocaleString();
+                html += `
+                    <div class="message ${isUser ? 'user' : 'admin'}">
+                        <div class="message-content">${escapeHtml(msg.message || '')}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div class="clearfix"></div>
+                `;
+            });
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        async function sendChatMessage() {
+            const input = document.getElementById('chatMessageInput');
+            const message = input.value.trim();
+            if (!message || !currentConversationId) return;
+            const token = Auth.getToken();
+            if (!token) { showToast('Please login to send messages', 'error'); return; }
+            input.value = '';
+            try {
+                const res = await fetch(`${CONFIG.API}/conversation/${currentConversationId}/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ message })
+                });
+                if (res.ok) await loadMessages();
+                else showToast('Failed to send message', 'error');
+            } catch (error) { showToast('Failed to send message', 'error'); }
+        }
+        
+        function startMessagePolling() {
+            if (messagePollInterval) clearInterval(messagePollInterval);
+            messagePollInterval = setInterval(() => {
+                if (currentConversationId && document.getElementById('chatWidget').style.display === 'flex') loadMessages();
+            }, 5000);
+        }
+        
+        function toggleChat() {
+            const body = document.getElementById('chatBody');
+            body.style.display = body.style.display === 'none' ? 'flex' : 'none';
+        }
+        
+        function closeChatWidget(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('chatWidget').style.display = 'none';
+            if (messagePollInterval) { clearInterval(messagePollInterval); messagePollInterval = null; }
+            currentConversationId = null; currentOrderId = null;
+        }
+        
+        function openCancelModal(orderId) { currentOrderId = orderId; document.getElementById('cancelModal').style.display = 'flex'; }
+        function openRevisionModal(orderId) { currentOrderId = orderId; document.getElementById('revisionModal').style.display = 'flex'; }
+        
+        async function submitCancel() {
+            const reason = document.getElementById('cancelReason').value;
+            if (!reason) { showToast('Please provide a reason', 'error'); return; }
+            const token = Auth.getToken();
+            try {
+                const res = await fetch(`${CONFIG.API}/order/${currentOrderId}/cancel`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast('Cancellation requested! Admin will review.');
+                closeModal(); loadOrders();
+            } catch (error) { showToast(error.message, 'error'); }
+        }
+        
+        async function submitRevision() {
+            const details = document.getElementById('revisionDetails').value;
+            if (!details) { showToast('Please describe the changes you want', 'error'); return; }
+            const token = Auth.getToken();
+            try {
+                const res = await fetch(`${CONFIG.API}/conversation/order_${currentOrderId}/send`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ message: `🔁 REVISION REQUEST:\n\n${details}\n\nPlease let me know when the changes are done.` })
+                });
+                if (!res.ok) throw new Error('Failed to send revision request');
+                showToast('✅ Revision request sent! Admin will review and get back to you.');
+                closeModal();
+                openChat(currentOrderId);
+            } catch (error) { showToast(error.message, 'error'); }
+        }
+        
+        function closeModal() {
+            document.getElementById('deliverablesModal').style.display = 'none';
+            document.getElementById('cancelModal').style.display = 'none';
+            document.getElementById('revisionModal').style.display = 'none';
+            document.getElementById('cancelReason').value = '';
+            document.getElementById('revisionDetails').value = '';
+        }
+        
+        function logout() {
+            localStorage.removeItem('dc_token');
+            localStorage.removeItem('dc_user');
+            localStorage.removeItem('dc_cart_local');
+            window.location.href = 'index.html';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const trigger = document.querySelector('.profile-trigger');
+            if (dropdown && !trigger.contains(event.target) && !dropdown.contains(event.target)) dropdown.classList.remove('show');
+        });
+        
+        const user = Auth.getUser();
+        if (user) updateProfileUI();
+        loadOrders();
+        
+        window.addEventListener('beforeunload', () => { if (messagePollInterval) clearInterval(messagePollInterval); });
+    </script>
+</body>
+</html>

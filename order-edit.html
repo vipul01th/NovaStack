@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Edit Order — NovaStack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    /* ===== 🎨 Modern CSS Variables ===== */
+    :root {
+      --bg-primary: #0f0c1a;
+      --bg-secondary: #1a162a;
+      --bg-card: rgba(26, 22, 42, 0.95);
+      --surface: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.15);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 107, 53, 0.6);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.75);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.4);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
+      --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+      --gradient-green: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 40px var(--accent-glow);
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+    }
+
+    /* ===== 🌟 Base Reset ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-overflow-scrolling: touch; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Prevent scroll when mobile menu is open */
+    body.menu-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Container */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      padding-top: 80px;
+    }
+
+    /* Back Link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+      min-height: 44px;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateX(-2px);
+    }
+
+    .back-link i {
+      font-size: 0.9rem;
+    }
+
+    /* ===== 🔗 Navigation ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(15, 12, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      transition: all var(--transition-normal);
+    }
+    
+    nav.scrolled {
+      height: 64px;
+      background: rgba(15, 12, 26, 0.95);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* ✅ FIXED: Logo size consistent with index.html (1.6rem) */
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem; /* Same as index.html */
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform var(--transition-fast);
+      white-space: nowrap;
+      flex-shrink: 0; /* Prevent logo from shrinking */
+    }
+    
+    .logo:hover { transform: scale(1.05); }
+    .logo span {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* ===== 📱 Mobile Menu Toggle ===== */
+    .menu-toggle {
+      display: none;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-toggle:hover, .menu-toggle.active {
+      background: var(--surface);
+    }
+    .menu-toggle i {
+      transition: transform var(--transition-normal);
+    }
+    .menu-toggle.active i {
+      transform: rotate(90deg);
+    }
+
+    /* ===== 📱 Mobile Menu Panel ===== */
+    .mobile-menu {
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 5%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  opacity 0.3s ease,
+                  transform 0.3s ease;
+      opacity: 0;
+      transform: translateY(-10px);
+      z-index: 999;
+      backdrop-filter: blur(20px);
+    }
+    .mobile-menu.active {
+      max-height: 85vh;
+      opacity: 1;
+      transform: translateY(0);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-menu-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-bottom: 1rem;
+    }
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem 1.2rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      min-height: 48px;
+    }
+    .mobile-nav-link:hover, .mobile-nav-link:active {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      transform: translateX(4px);
+    }
+    .mobile-nav-link i {
+      width: 24px;
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+    .mobile-nav-link.auth-only {
+      display: none;
+    }
+    .mobile-nav-link.auth-only.visible {
+      display: flex;
+    }
+    .mobile-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+    .mobile-auth-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 0.5rem 0;
+    }
+    .mobile-auth-section.hidden {
+      display: none;
+    }
+    .mobile-auth-section .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Mobile Profile Section */
+    .mobile-profile-section {
+      display: none;
+      padding: 0.5rem 0;
+    }
+    .mobile-profile-section.visible {
+      display: block;
+    }
+    .mobile-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem 1.2rem;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.5rem;
+    }
+    .mobile-profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .mobile-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .mobile-profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .mobile-profile-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-profile-email {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-logout-btn {
+      width: 100%;
+      justify-content: center;
+      color: #ef4444 !important;
+      border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    .mobile-logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    /* Mobile Cart Button */
+    .mobile-cart-btn {
+      display: none;
+    }
+    .mobile-cart-btn.visible {
+      display: flex;
+    }
+
+    /* ===== 🎭 Profile Dropdown (Desktop) ===== */
+    .profile-wrapper {
+      position: relative;
+    }
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      border: 2px solid var(--accent);
+      transition: all var(--transition-normal);
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .profile-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .profile-btn img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      min-width: 220px;
+      padding: 0.8rem 0;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all var(--transition-normal);
+      z-index: 1001;
+    }
+    .profile-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .profile-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 20px;
+      width: 12px;
+      height: 12px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1.2rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all var(--transition-fast);
+      border-left: 3px solid transparent;
+    }
+    .dropdown-item:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border-left-color: var(--accent);
+      padding-left: 1.5rem;
+    }
+    .dropdown-item i {
+      width: 20px;
+      text-align: center;
+      color: var(--accent);
+    }
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+    .dropdown-logout {
+      color: #ef4444 !important;
+    }
+    .dropdown-logout i {
+      color: #ef4444 !important;
+    }
+
+    /* Guest Auth Buttons */
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .auth-buttons.hidden {
+      display: none;
+    }
+
+    /* ===== ✨ Modern Buttons ===== */
+    .btn {
+      padding: 0.55rem 1.2rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      min-height: 44px;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before { left: 100%; }
+
+    .btn-sm {
+      padding: 0.45rem 1rem;
+      font-size: 0.82rem;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn-sm:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+      color: var(--text-primary);
+    }
+
+    .btn-accent {
+      background: var(--gradient-accent);
+      color: white !important;
+      border: none !important;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+      color: white !important;
+    }
+
+    .btn-lg {
+      padding: 0.9rem 1.8rem;
+      font-size: 0.95rem;
+      border-radius: var(--radius-lg);
+      min-height: 48px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn:disabled,
+    .btn-sm:disabled,
+    .btn-accent:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn.loading {
+      color: transparent !important;
+      pointer-events: none;
+      position: relative;
+    }
+
+    .btn.loading::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .btn i {
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .btn-sm i {
+      font-size: 0.8rem;
+    }
+
+    /* Main Card */
+    .customization-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Service Header */
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .service-icon {
+      font-size: 3.5rem;
+      background: var(--surface);
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      transition: transform var(--transition-normal);
+      flex-shrink: 0;
+    }
+
+    .service-icon:hover {
+      transform: scale(1.05) rotate(5deg);
+      border-color: var(--accent);
+    }
+
+    /* ✅ FIXED: Header text visible on all screens including laptop */
+    .service-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .service-price {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .service-price span {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    label i {
+      color: var(--accent);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all var(--transition-normal);
+      min-height: 44px;
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--border-hover);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+      background: var(--surface-hover);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 0;
+      min-height: 44px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    /* Select Dropdown */
+    select {
+      appearance: none;
+      background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%237a736a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.2rem;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 1.2rem;
+      background: var(--gradient-accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      box-shadow: 0 6px 25px var(--accent-glow);
+      position: relative;
+      overflow: hidden;
+      min-height: 48px;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 35px var(--accent-glow);
+    }
+
+    .btn-primary i {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 1rem;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+      min-height: 44px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--surface);
+    }
+
+    /* History Timeline */
+    .history-timeline {
+      margin-top: 2.5rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    .history-timeline h4 {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-timeline h4 i {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.8rem 0 0.8rem 1.5rem;
+      border-left: 2px solid var(--accent);
+      margin-left: 0.5rem;
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 18px;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .timeline-time {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-action {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      text-transform: capitalize;
+    }
+
+    .timeline-details {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .loading i {
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+      color: var(--accent);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error State */
+    .error-message {
+      text-align: center;
+      padding: 3rem;
+      color: #f87171;
+    }
+
+    .error-message a {
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-message a:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ===== 📱 Responsive Design - ✅ FIXED FOR LAPTOP SCREENS ===== */
+    
+    /* Laptop screens (1024px - 1400px) - Header text fix */
+    @media (min-width: 1024px) and (max-width: 1400px) {
+      .service-title {
+        font-size: clamp(1.5rem, 3vw, 1.8rem);
+        line-height: 1.25;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1.5rem; }
+      
+      nav { padding: 0 4%; height: 68px; }
+      .nav-right { display: none; }
+      .menu-toggle { display: flex; }
+      
+      .container { padding-top: 70px; }
+      
+      .customization-card { padding: 1.5rem; }
+      
+      .service-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .service-icon { margin: 0 auto; }
+      
+      .service-title { font-size: 1.5rem; }
+      
+      .btn-primary, .btn-secondary { padding: 0.9rem; }
+      /* Mobile menu adjustments */
+      .mobile-menu {
+        top: 68px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .service-title { font-size: 1.4rem; }
+      .service-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 3rem;
+      }
+      .btn-primary, .btn-secondary { padding: 0.9rem; font-size: 0.95rem; }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-accent);
+      border-radius: var(--radius-full);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* Mobile menu scrollbar */
+    .mobile-menu::-webkit-scrollbar {
+      width: 4px;
+    }
+    .mobile-menu::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Focus States */
+    a:focus, button:focus, input:focus, select:focus, textarea:focus, .mobile-nav-link:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Safe area for notched devices */
+    @supports (padding: max(0px)) {
+      nav {
+        padding-left: max(5%, env(safe-area-inset-left));
+        padding-right: max(5%, env(safe-area-inset-right));
+      }
+      .mobile-menu {
+        padding-left: max(4%, env(safe-area-inset-left));
+        padding-right: max(4%, env(safe-area-inset-right));
+      }
+      .container {
+        padding-top: max(80px, env(safe-area-inset-top));
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 🔗 Navigation -->
+  <nav id="navbar">
+    <a class="logo" href="index.html"><i class="fas fa-code"></i> Nova<span>Stack</span></a>
+    
+    <!-- Desktop Right Section -->
+    <div class="nav-right">
+      <!-- Guest View: Login/Signup Buttons -->
+      <div class="auth-buttons" id="authButtons">
+        <a href="login.html" class="btn btn-sm" id="login-btn">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+        <a href="signup.html" class="btn btn-sm btn-accent" id="signup-btn">
+          <i class="fas fa-user-plus"></i> Sign Up
+        </a>
+      </div>
+      
+      <!-- Logged In View: Profile Dropdown -->
+      <div class="profile-wrapper" id="profileWrapper" style="display: none;">
+        <div class="profile-btn" id="profileBtn">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="profile-dropdown" id="profileDropdown">
+          <a href="profile.html" class="dropdown-item">
+            <i class="fas fa-user-circle"></i> My Profile
+          </a>
+          <a href="my-orders.html" class="dropdown-item">
+            <i class="fas fa-shopping-bag"></i> My Orders
+          </a>
+          <a href="cart.html" class="dropdown-item">
+            <i class="fas fa-shopping-cart"></i> Cart 
+            <span class="cart-count" id="cart-count-dropdown">0</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-logout" id="dropdownLogout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu Panel -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+      <!-- Navigation Links -->
+      <a href="index.html" class="mobile-nav-link" data-close-menu>
+        <i class="fas fa-home"></i> Home
+      </a>
+      <a href="services.html" class="mobile-nav-link" data-close-menu>
+        <i class="fas fa-layer-group"></i> Services
+      </a>
+      <a href="my-orders.html" class="mobile-nav-link auth-only" data-close-menu>
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </a>
+      <a href="cart.html" class="mobile-nav-link" data-close-menu>
+        <i class="fas fa-shopping-cart"></i> Cart
+      </a>
+      
+      <div class="mobile-divider"></div>
+      
+      <!-- Guest Auth Section -->
+      <div class="mobile-auth-section" id="mobileAuthButtons">
+        <a href="login.html" class="btn btn-outline" data-close-menu>Login</a>
+        <a href="signup.html" class="btn btn-accent" data-close-menu>Sign Up</a>
+      </div>
+      
+      <!-- Logged In Profile Section -->
+      <div class="mobile-profile-section" id="mobileProfileSection">
+        <div class="mobile-profile-header">
+          <div class="mobile-profile-avatar" id="mobileProfileAvatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="mobile-profile-info">
+            <div class="mobile-profile-name" id="mobileProfileName">User</div>
+            <div class="mobile-profile-email" id="mobileProfileEmail">user@example.com</div>
+          </div>
+        </div>
+        <a href="profile.html" class="mobile-nav-link" data-close-menu>
+          <i class="fas fa-user-circle"></i> My Profile
+        </a>
+        <a href="my-orders.html" class="mobile-nav-link" data-close-menu>
+          <i class="fas fa-shopping-bag"></i> My Orders
+        </a>
+        <a href="cart.html" class="mobile-nav-link mobile-cart-btn" data-close-menu>
+          <i class="fas fa-shopping-cart"></i> Cart 
+          <span class="cart-count" id="mobile-cart-count" style="margin-left:auto">0</span>
+        </a>
+        <button class="btn btn-outline mobile-logout-btn" id="mobileLogoutBtn" data-close-menu>
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <a href="my-orders.html" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to My Orders
+    </a>
+    
+    <div class="customization-card" id="edit-card">
+      <div id="loading" class="loading">
+        <i class="fas fa-spinner fa-spin"></i> Loading order details...
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const CONFIG = { 
+      API: 'https://novastack-backend.onrender.com',
+      ENDPOINTS: {
+        ORDER: '/order',
+        USER: '/user',
+        LOGOUT: '/auth/logout'
+      }
+    };
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+    
+    if (!orderId) {
+      window.location.href = 'my-orders.html';
+    }
+    
+    let orderData = null;
+    
+    // ── Auth Helpers (REAL API ONLY) ──────────────────────────────────────────
+    const Auth = {
+      getToken() { 
+        return localStorage.getItem('dc_token') || sessionStorage.getItem('dc_token') || ''; 
+      },
+      getUser() { 
+        try { 
+          const userStr = localStorage.getItem('dc_user') || sessionStorage.getItem('dc_user');
+          return userStr ? JSON.parse(userStr) : null; 
+        } catch { return null; } 
+      },
+      isLoggedIn() { 
+        return !!this.getToken() && !!this.getUser(); 
+      },
+      async fetchUser() {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+          const res = await fetch(CONFIG.API + CONFIG.ENDPOINTS.USER, {
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!res.ok) throw new Error('Auth failed');
+          const data = await res.json();
+          return data.user || data;
+        } catch (e) {
+          console.warn('Failed to fetch user:', e.message);
+          return null;
+        }
+      }
+    };
+
+    async function logout() { 
+      const token = Auth.getToken();
+      if (token) {
+        try {
+          await fetch(CONFIG.API + CONFIG.ENDPOINTS.LOGOUT, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        } catch (e) {
+          console.warn('Logout API call failed:', e.message);
+        }
+      }
+      localStorage.removeItem('dc_token');
+      localStorage.removeItem('dc_user');
+      sessionStorage.removeItem('dc_token');
+      sessionStorage.removeItem('dc_user');
+      updateAuthUI();
+      if (mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      }
+      window.location.href = 'index.html';
+    }
+
+    // ── UI Update Functions ───────────────────────────────────────────────────
+    async function updateAuthUI() {
+      const isLoggedIn = Auth.isLoggedIn();
+      const user = Auth.getUser();
+      
+      if (isLoggedIn && user) {
+        document.getElementById('authButtons').classList.add('hidden');
+        document.getElementById('profileWrapper').style.display = 'block';
+        document.getElementById('mobileAuthButtons').classList.add('hidden');
+        document.getElementById('mobileProfileSection').classList.add('visible');
+        
+        document.querySelectorAll('.auth-only').forEach(el => {
+          el.style.display = el.tagName === 'LI' ? 'block' : 'inline-flex';
+          if (el.classList.contains('mobile-nav-link')) {
+            el.classList.add('visible');
+          }
+        });
+        
+        const profileBtn = document.getElementById('profileBtn');
+        if (user.avatar) {
+          profileBtn.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+        } else {
+          const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+          profileBtn.textContent = initial;
+        }
+        
+        const mobileAvatar = document.getElementById('mobileProfileAvatar');
+        const mobileName = document.getElementById('mobileProfileName');
+        const mobileEmail = document.getElementById('mobileProfileEmail');
+        
+        if (user.avatar) {
+          mobileAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+        } else {
+          const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+          mobileAvatar.textContent = initial;
+        }
+        mobileName.textContent = user.name || user.email || 'User';
+        mobileEmail.textContent = user.email || '';
+        
+      } else {
+        document.getElementById('authButtons').classList.remove('hidden');
+        document.getElementById('profileWrapper').style.display = 'none';
+        document.getElementById('mobileAuthButtons').classList.remove('hidden');
+        document.getElementById('mobileProfileSection').classList.remove('visible');
+        
+        document.querySelectorAll('.auth-only').forEach(el => {
+          el.style.display = 'none';
+          if (el.classList.contains('mobile-nav-link')) {
+            el.classList.remove('visible');
+          }
+        });
+      }
+    }
+
+    // ── Profile Dropdown Toggle (Desktop) ─────────────────────────────────────
+    document.getElementById('profileBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('profileDropdown');
+      const profileBtn = document.getElementById('profileBtn');
+      if (dropdown && !profileBtn?.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+
+    document.getElementById('dropdownLogout')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+
+    // ── REAL API Fetch (NO DEMO/FALLBACK) ─────────────────────────────────────
+    async function apiFetch(path, opts = {}) {
+      const headers = { 
+        'Content-Type': 'application/json', 
+        ...(opts.headers || {}) 
+      };
+      const token = Auth.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch(CONFIG.API + path, { 
+        ...opts, 
+        headers,
+        credentials: 'include'
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || json.message || `Error ${res.status}`);
+      }
+      return json;
+    }
+
+    // ── Mobile Menu Toggle ────────────────────────────────────────────────────
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    function toggleMobileMenu() {
+      const isActive = mobileMenu.classList.toggle('active');
+      menuToggle.classList.toggle('active', isActive);
+      menuToggle.setAttribute('aria-expanded', isActive);
+      
+      if (isActive) {
+        document.body.classList.add('menu-open');
+        document.body.dataset.scrollY = window.scrollY;
+      } else {
+        document.body.classList.remove('menu-open');
+        if (document.body.dataset.scrollY) {
+          window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+          delete document.body.dataset.scrollY;
+        }
+      }
+    }
+
+    menuToggle.addEventListener('click', toggleMobileMenu);
+
+    // Close menu when clicking any link with data-close-menu
+    document.querySelectorAll('[data-close-menu]').forEach(link => {
+      link.addEventListener('click', () => {
+        if (mobileMenu.classList.contains('active')) {
+          mobileMenu.classList.remove('active');
+          menuToggle.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          document.body.classList.remove('menu-open');
+          
+          if (document.body.dataset.scrollY) {
+            setTimeout(() => {
+              window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+              delete document.body.dataset.scrollY;
+            }, 300);
+          }
+        }
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (mobileMenu.classList.contains('active') && 
+          !mobileMenu.contains(e.target) && 
+          !menuToggle.contains(e.target)) {
+        mobileMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('menu-open');
+        
+        if (document.body.dataset.scrollY) {
+          setTimeout(() => {
+            window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+            delete document.body.dataset.scrollY;
+          }, 300);
+        }
+      }
+    });
+
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+        toggleMobileMenu();
+        menuToggle.focus();
+      }
+    });
+
+    // Handle window resize - close menu if switching to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      }
+      
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        mobileMenu.style.top = '64px';
+      } else {
+        mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+      }
+    });
+
+    // Navbar Scroll Effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+        mobileMenu.style.top = '64px';
+      } else {
+        nav.classList.remove('scrolled');
+        mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+      }
+    });
+
+    async function loadOrder() {
+      // Check authentication first
+      if (!Auth.isLoggedIn()) {
+        window.location.href = `login.html?redirect=order-edit.html?id=${orderId}`;
+        return;
+      }
+      
+      try {
+        console.log('🔄 Loading order:', orderId);
+        
+        // REAL API ONLY - No demo fallback
+        const data = await apiFetch(`${CONFIG.ENDPOINTS.ORDER}/${orderId}`);
+        
+        console.log('📥 Order data:', data);
+        
+        orderData = data.data || data.order;
+        renderEditForm();
+        
+      } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById('edit-card').innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>Failed to load order: ${error.message}</p>
+            <a href="my-orders.html">Go back to My Orders</a>
+          </div>
+        `;
+      }
+    }
+    
+    function renderEditForm() {
+      const order = orderData.order || orderData;
+      const customization = order.customization || {};
+      const service = order.services || {};
+      
+      const html = `
+        <div class="service-header">
+          <div class="service-icon">${service.emoji || '💻'}</div>
+          <div>
+            <h2 class="service-title">Edit Order #${order.id}</h2>
+            <div class="service-price">Total: <span>$${order.price}</span></div>
+          </div>
+        </div>
+        
+        <form id="editForm">
+          ${renderCustomizationFields(customization)}
+          
+          <div class="form-group">
+            <label><i class="fas fa-file-alt"></i> Additional Requirements</label>
+            <textarea id="requirements" rows="4" placeholder="Tell us more about your project...">${order.requirements || ''}</textarea>
+          </div>
+          
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <button type="button" class="btn-secondary" onclick="window.location.href='my-orders.html'">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </form>
+        
+        ${renderHistory()}
+      `;
+      
+      document.getElementById('edit-card').innerHTML = html;
+      document.getElementById('editForm').addEventListener('submit', saveChanges);
+    }
+    
+    function renderCustomizationFields(existingCustomization) {
+      const options = orderData.order?.services?.customization_options || orderData.services?.customization_options || [];
+      
+      if (options.length === 0) {
+        return `
+          <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; color: var(--text-muted);">
+            <i class="fas fa-info-circle" style="color: var(--accent); margin-right: 0.5rem;"></i>
+            No customization options available for this service.
+          </div>
+        `;
+      }
+      
+      return options.map(field => {
+        const fieldId = `field_${field.label.replace(/\s+/g, '_')}`;
+        const currentValue = existingCustomization[field.label];
+        
+        switch(field.type) {
+          case 'select':
+            return `
+              <div class="form-group">
+                <label><i class="fas fa-chevron-down"></i> ${field.label} ${field.required ? '<span style="color: var(--accent);">*</span>' : ''}</label>
+                <select id="${fieldId}" ${field.required ? 'required' : ''}>
+                  <option value="">Select ${field.label}...</option>
+                  ${field.options.map(opt => `
+                    <option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>
+                  `).join('')}
+                </select>
+              </div>
+            `;
+            
+          case 'checkbox':
+            return `
+              <div class="form-group">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="${fieldId}" ${currentValue ? 'checked' : ''}>
+                  <label for="${fieldId}">${field.label}</label>
+                </div>
+              </div>
+            `;
+            
+          case 'textarea':
+            return `
+              <div class="form-group">
+                <label><i class="fas fa-align-left"></i> ${field.label}</label>
+                <textarea id="${fieldId}" rows="3" ${field.required ? 'required' : ''}>${currentValue || ''}</textarea>
+              </div>
+            `;
+            
+          default:
+            return `
+              <div class="form-group">
+                <label><i class="fas fa-pencil-alt"></i> ${field.label}</label>
+                <input type="text" id="${fieldId}" value="${currentValue || ''}" ${field.required ? 'required' : ''}>
+              </div>
+            `;
+        }
+      }).join('');
+    }
+    
+    function renderHistory() {
+      const history = orderData.history || [];
+      
+      if (history.length === 0) return '';
+      
+      return `
+        <div class="history-timeline">
+          <h4><i class="fas fa-history"></i> Order History</h4>
+          ${history.map(item => `
+            <div class="timeline-item">
+              <div style="flex:1;">
+                <div class="timeline-time">
+                  <i class="fas fa-clock" style="margin-right: 0.3rem;"></i>
+                  ${new Date(item.created_at).toLocaleString()}
+                </div>
+                <div class="timeline-action">${item.action.replace('_', ' ')}</div>
+                ${item.old_data ? `
+                  <div class="timeline-details">
+                    <i class="fas fa-edit" style="margin-right: 0.3rem;"></i>
+                    Previous: ${JSON.stringify(item.old_data).substring(0, 50)}...
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    async function saveChanges(e) {
+      e.preventDefault();
+      
+      const options = orderData.order?.services?.customization_options || orderData.services?.customization_options || [];
+      const customization = {};
+      
+      options.forEach(field => {
+        const fieldId = `field_${field.label.replace(/\s+/g, '_')}`;
+        const element = document.getElementById(fieldId);
+        if (element) {
+          customization[field.label] = element.type === 'checkbox' ? element.checked : element.value;
+        }
+      });
+      
+      const requirements = document.getElementById('requirements').value;
+      
+      try {
+        // REAL API UPDATE
+        const res = await apiFetch(`${CONFIG.ENDPOINTS.ORDER}/${orderId}/update`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            customization: customization,
+            requirements: requirements
+          })
+        });
+        
+        alert('✅ Order updated successfully!');
+        window.location.href = 'my-orders.html';
+        
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+    
+    // ── Initialize ────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Refresh user data if logged in
+      if (Auth.isLoggedIn()) {
+        const freshUser = await Auth.fetchUser();
+        if (freshUser) {
+          localStorage.setItem('dc_user', JSON.stringify(freshUser));
+        }
+      }
+      await updateAuthUI();
+      loadOrder();
+      
+      // Handle window resize for mobile menu position
+      window.addEventListener('resize', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+          mobileMenu.style.top = '64px';
+        } else {
+          mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+        }
+        if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+          mobileMenu.classList.remove('active');
+          menuToggle.classList.remove('active');
+          document.body.classList.remove('menu-open');
+        }
+      });
+      
+      document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden && Auth.isLoggedIn()) {
+          await updateAuthUI();
+        }
+      });
+    });
+
+    // Prevent zoom on double-tap for iOS
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+</body>
+</html>

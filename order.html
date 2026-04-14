@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — DevCraft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="logo/jpeg" href="/frontend/logo.png">
+  <style>
+    /* ===== 🎨 Modern CSS Variables (Matching Design System) ===== */
+    :root {
+      --bg-primary: #0f0c1a;
+      --bg-secondary: #1a162a;
+      --bg-card: rgba(26, 22, 42, 0.85);
+      --surface: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.15);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(232, 93, 38, 0.6);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.75);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.4);
+      --accent-secondary: #7c3aed;
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
+      --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+      --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      --gradient-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 40px var(--accent-glow);
+      --shadow-success: 0 0 40px var(--green-glow);
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+    }
+
+    /* ===== 🌟 Base Reset ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+      z-index: -2;
+      animation: bgPulse 25s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes bgPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.03); }
+    }
+
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 20s infinite linear;
+    }
+    
+    .particle.success { background: var(--green); animation-duration: 15s; }
+    .particle.accent { background: var(--accent); animation-duration: 18s; animation-delay: 2s; }
+    .particle.purple { background: var(--accent-secondary); animation-duration: 22s; animation-delay: 4s; }
+    
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg) scale(0); opacity: 0; }
+      10% { opacity: 0.3; transform: scale(1); }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-20vh) rotate(720deg) scale(0); opacity: 0; }
+    }
+
+    /* Confetti Celebration */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confettiFall 3s ease-out forwards;
+      z-index: 100;
+      pointer-events: none;
+    }
+    
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== 🔗 Navigation ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(15, 12, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 72px;
+      transition: all var(--transition-normal);
+    }
+    
+    nav.scrolled {
+      height: 64px;
+      background: rgba(15, 12, 26, 0.95);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform var(--transition-fast);
+    }
+    
+    .logo:hover { transform: scale(1.05); }
+    .logo span {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== 🎉 Main Container ===== */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 130px 5% 4rem;
+      position: relative;
+    }
+
+    /* ===== 🏆 Success Banner ===== */
+    .success-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-lg), var(--shadow-success);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      border-top: 3px solid var(--gradient-success);
+    }
+    
+    .success-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 60%);
+      animation: pulseGlow 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .success-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: var(--radius-full);
+      background: var(--gradient-success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1.5rem;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both, float 3s ease-in-out infinite 1s;
+      box-shadow: 0 10px 40px var(--green-glow);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .success-icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: var(--radius-full);
+      background: var(--gradient-success);
+      filter: blur(15px);
+      opacity: 0.5;
+      z-index: -1;
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-180deg); opacity: 0; }
+      50% { transform: scale(1.2) rotate(10deg); }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+    
+    .success-banner h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.6rem, 5vw, 2rem);
+      color: var(--green);
+      margin-bottom: 0.6rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .success-banner p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .order-id-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius-full);
+      padding: 0.45rem 1.2rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.5s ease-out 0.4s both;
+    }
+    
+    .order-id-badge i { font-size: 0.85rem; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ===== 📦 Cards ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      margin-bottom: 1.2rem;
+      backdrop-filter: blur(10px);
+      transition: all var(--transition-normal);
+      animation: slideUp 0.5s ease-out both;
+      opacity: 0;
+    }
+    
+    .card.visible { opacity: 1; }
+    
+    .card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .card h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .card h2 i { color: var(--accent); }
+
+    /* ===== 📋 Order Items ===== */
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: all var(--transition-fast);
+    }
+    
+    .order-item:last-child { border-bottom: none; }
+    .order-item:hover { 
+      background: var(--surface); 
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      margin: 0 -0.5rem;
+      border-radius: var(--radius-sm);
+    }
+    
+    .item-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      background: var(--gradient-1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transition: transform var(--transition-normal);
+    }
+    
+    .order-item:hover .item-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .item-info { flex: 1; min-width: 0; }
+    
+    .item-info h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .item-info p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    
+    .item-price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--accent);
+      min-width: 70px;
+      text-align: right;
+    }
+
+    /* ===== 💳 Payment Box ===== */
+    .payment-box {
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid rgba(255, 107, 53, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      margin-bottom: 1.2rem;
+      animation: slideUp 0.5s ease-out 0.1s both;
+      opacity: 0;
+    }
+    
+    .payment-box.visible { opacity: 1; }
+    
+    .payment-box h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+    }
+    
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.92rem;
+      margin-bottom: 0.65rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+    }
+    
+    .pay-row:hover { background: var(--surface); }
+    
+    .pay-row .lbl {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .pay-row .lbl i { color: var(--accent); font-size: 0.85rem; }
+    
+    .pay-row .val {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .pay-divider {
+      border: none;
+      border-top: 1px dashed rgba(255, 107, 53, 0.4);
+      margin: 0.9rem 0;
+    }
+    
+    .pay-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      padding: 0.8rem 0;
+    }
+    
+    .pay-due {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .pay-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.9rem;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .pay-note i {
+      color: var(--accent);
+      font-size: 1rem;
+      margin-top: 3px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+
+    /* ===== ✅ Steps Card ===== */
+    .steps-card {
+      animation: slideUp 0.5s ease-out 0.2s both;
+      opacity: 0;
+    }
+    
+    .steps-card.visible { opacity: 1; }
+    
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .step-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 0.6rem 0;
+      transition: all var(--transition-fast);
+      border-radius: var(--radius-sm);
+    }
+    
+    .step-item:hover {
+      background: var(--surface);
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      margin: 0 -0.5rem;
+    }
+    
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px var(--accent-glow);
+      transition: transform var(--transition-normal);
+    }
+    
+    .step-item:hover .step-num {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .step-info h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.2rem;
+      color: var(--text-primary);
+    }
+    
+    .step-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ===== 🎯 Action Buttons ===== */
+    .action-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      animation: slideUp 0.5s ease-out 0.3s both;
+      opacity: 0;
+    }
+    
+    .action-btns.visible { opacity: 1; }
+    
+    .btn {
+      padding: 1rem 1.4rem;
+      border-radius: var(--radius-lg);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: all var(--transition-normal);
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn:hover::before { left: 100%; }
+    
+    .btn-wa {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: white;
+      box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
+    }
+    
+    .btn-wa:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(37, 211, 102, 0.6);
+    }
+    
+    .btn-browse {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1.5px solid var(--border);
+    }
+    
+    .btn-browse:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== 📱 Responsive Design ===== */
+    @media (max-width: 640px) {
+      .container { padding: 110px 4% 3rem; }
+      .success-banner { padding: 2rem 1.5rem; }
+      .success-icon { width: 75px; height: 75px; font-size: 2rem; }
+      .success-banner h1 { font-size: 1.5rem; }
+      .card { padding: 1.4rem; }
+      .action-btns { grid-template-columns: 1fr; }
+      .btn { padding: 0.9rem; font-size: 0.9rem; }
+      .order-item { flex-wrap: wrap; }
+      .item-info { min-width: calc(100% - 130px); }
+      .item-price { width: 100%; text-align: left; margin-top: 0.5rem; }
+    }
+
+    @media (max-width: 480px) {
+      .success-banner { padding: 1.8rem 1.2rem; }
+      .success-icon { width: 65px; height: 65px; font-size: 1.8rem; }
+      .order-id-badge { font-size: 0.85rem; padding: 0.4rem 1rem; }
+      .pay-total { font-size: 1.1rem; }
+      .step-num { width: 28px; height: 28px; font-size: 0.75rem; }
+    }
+
+    /* ===== 🎭 Scroll Animations ===== */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-accent);
+      border-radius: var(--radius-full);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* Focus States */
+    a:focus, button:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated Particles Background -->
+<div class="particles" id="particles"></div>
+
+<!-- 🔗 Navigation -->
+<nav id="navbar">
+  <a class="logo" href="index.html"><i class="fas fa-code"></i> Nova<span>Stack</span></a>
+</nav>
+
+<!-- 🎉 Main Content -->
+<div class="container" id="page-body">
+  <div style="text-align:center;padding:4rem;color:var(--text-muted)">
+    <div class="spinner"></div>
+    <p style="margin-top:1rem">Loading your order confirmation...</p>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const CONFIG = { API: ' http://10.19.149.140:5000', WA_NUMBER: '923001234567' };
+
+// ── Create Floating Particles ─────────────────────────────────────────────
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['success', 'accent', 'purple'];
+  
+  for (let i = 0; i < 35; i++) {
+    const particle = document.createElement('div');
+    particle.className = `particle ${colors[i % 3]}`;
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 20 + 's';
+    particle.style.width = particle.style.height = (3 + Math.random() * 5) + 'px';
+    particle.style.opacity = 0.2 + Math.random() * 0.4;
+    container.appendChild(particle);
+  }
+}
+createParticles();
+
+// ── Create Confetti Celebration ───────────────────────────────────────────
+function createConfetti() {
+  const colors = ['#ff6b35', '#10b981', '#7c3aed', '#3b82f6', '#f59e0b', '#ec4899'];
+  
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.width = (6 + Math.random() * 8) + 'px';
+      confetti.style.height = confetti.style.width;
+      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      document.body.appendChild(confetti);
+      
+      // Remove after animation
+      setTimeout(() => confetti.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+// ── Navbar Scroll Effect ──────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+});
+
+// ── Load Order Data ───────────────────────────────────────────────────────
+const order = JSON.parse(localStorage.getItem('dc_last_order') || 'null');
+
+if (!order) {
+  window.location.href = 'index.html';
+} else {
+  // Trigger confetti celebration after a short delay
+  setTimeout(createConfetti, 500);
+  
+  const items = order.items || [];
+  const total = parseFloat(order.total || 0);
+  const advance = Math.round(total * 0.2);
+  const remaining = total - advance;
+  const orderId = order.order_ids 
+    ? `ORD-${order.order_ids[0]}` 
+    : `ORD-${Date.now().toString(36).toUpperCase()}`;
+  const user = JSON.parse(localStorage.getItem('dc_user') || '{}');
+
+  // Render the page
+  document.getElementById('page-body').innerHTML = `
+    <!-- 🏆 Success Banner -->
+    <div class="success-banner animate-on-scroll">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+      <h1>Order Placed Successfully! 🎉</h1>
+      <p>Thank you${user.name ? ', <strong>' + user.name + '</strong>' : ''}! 
+         We'll review your order and contact you on WhatsApp shortly.</p>
+      <div class="order-id-badge">
+        <i class="fas fa-hashtag"></i> ${orderId}
+      </div>
+    </div>
+
+    <!-- 📦 Order Items Card -->
+    <div class="card" id="card-items">
+      <h2><i class="fas fa-box-open"></i> Order Items</h2>
+      ${items.map(item => `
+        <div class="order-item">
+          <div class="item-icon">${item.emoji || '<i class="fas fa-laptop-code"></i>'}</div>
+          <div class="item-info">
+            <h4>${item.title || 'Software Service'}</h4>
+            <p><i class="fas fa-tag"></i> Professional development service</p>
+          </div>
+          <div class="item-price">₹${parseFloat(item.price || 0).toLocaleString()}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- 💳 Payment Breakdown Card -->
+    <div class="payment-box" id="card-payment">
+      <h2><i class="fas fa-credit-card"></i> Payment Breakdown</h2>
+      <div class="pay-row">
+        <span class="lbl"><i class="fas fa-calculator"></i> Project Total</span>
+        <span class="val">₹${total.toLocaleString()}</span>
+      </div>
+      <div class="pay-row">
+        <span class="lbl"><i class="fas fa-percent"></i> Advance Required (20%)</span>
+        <span class="val" style="color:var(--accent);font-weight:600">₹${advance.toLocaleString()}</span>
+      </div>
+      <div class="pay-row">
+        <span class="lbl"><i class="fas fa-wallet"></i> Balance on Delivery</span>
+        <span class="val">₹${remaining.toLocaleString()}</span>
+      </div>
+      <hr class="pay-divider">
+      <div class="pay-total">
+        <span>Pay Now (Advance)</span>
+        <span class="pay-due">₹${advance.toLocaleString()}</span>
+      </div>
+      <p class="pay-note">
+        <i class="fas fa-bolt"></i>
+        <span>We'll share secure payment details via WhatsApp. Your project starts immediately after advance payment confirmation.</span>
+      </p>
+    </div>
+
+    <!-- ✅ What Happens Next Card -->
+    <div class="card steps-card" id="card-steps">
+      <h2><i class="fas fa-road"></i> What Happens Next?</h2>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <h4><i class="fas fa-eye"></i> Order Review</h4>
+            <p>Our team reviews your order within 2–4 hours</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <h4><i class="fab fa-whatsapp"></i> WhatsApp Contact</h4>
+            <p>We contact you to discuss requirements and payment details</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-info">
+            <h4><i class="fas fa-hand-holding-usd"></i> Advance Payment</h4>
+            <p>20% advance confirms your project start date</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-info">
+            <h4><i class="fas fa-code"></i> Development Begins</h4>
+            <p>Weekly progress updates sent to your email</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-info">
+            <h4><i class="fas fa-rocket"></i> Final Delivery</h4>
+            <p>Full source code + documentation + deployment assistance</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🎯 Action Buttons -->
+    <div class="action-btns" id="action-btns">
+      <a href="https://wa.me/${CONFIG.WA_NUMBER}?text=Hi!%20I%20just%20placed%20order%20${encodeURIComponent(orderId)}%20on%20NovaStack.%20Looking%20forward%20to%20working%20together!%20🚀" 
+         class="btn btn-wa" target="_blank" rel="noopener">
+        <i class="fab fa-whatsapp"></i> Message on WhatsApp
+      </a>
+      <a href="services.html" class="btn btn-browse">
+        <i class="fas fa-compass"></i> Browse More Services
+      </a>
+    </div>
+  `;
+
+  // Trigger card animations with staggered delay
+  setTimeout(() => {
+    document.getElementById('card-items')?.classList.add('visible');
+  }, 200);
+  setTimeout(() => {
+    document.getElementById('card-payment')?.classList.add('visible');
+  }, 350);
+  setTimeout(() => {
+    document.getElementById('card-steps')?.classList.add('visible');
+  }, 500);
+  setTimeout(() => {
+    document.getElementById('action-btns')?.classList.add('visible');
+  }, 650);
+}
+
+// ── Scroll Animation Observer ─────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+// Observe animate-on-scroll elements
+document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+// ── Initialize ────────────────────────────────────────────────────────────
+// Add smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>

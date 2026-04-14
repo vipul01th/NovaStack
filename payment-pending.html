@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Pending - NovaStack</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f0c1a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            padding: 2rem;
+        }
+        .success-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            background: #ff6b35;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h2>Payment Completed!</h2>
+        <p>Your payment has been successfully processed.</p>
+        <p>Click below to confirm your order.</p>
+        <button class="btn" onclick="confirmOrder()">Confirm Order</button>
+    </div>
+    
+    <script>
+        function confirmOrder() {
+            // Get order details from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('razorpay_order_id');
+            
+            if (orderId) {
+                // Call backend to verify
+                fetch(' http://10.19.149.140:5000/verify-payment-manual', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('dc_token')}`
+                    },
+                    body: JSON.stringify({ razorpay_order_id: orderId })
+                }).then(() => {
+                    window.location.href = 'my-orders.html';
+                });
+            } else {
+                window.location.href = 'my-orders.html';
+            }
+        }
+    </script>
+</body>
+</html>

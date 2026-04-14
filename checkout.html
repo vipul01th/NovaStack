@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Checkout - NovaStack</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        /* ===== 🎨 Modern CSS Variables ===== */
+        :root {
+            --bg-primary: #0f0c1a;
+            --bg-secondary: #1a162a;
+            --bg-card: rgba(26, 22, 42, 0.95);
+            --surface: rgba(255, 255, 255, 0.08);
+            --surface-hover: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.12);
+            --border-hover: rgba(232, 93, 38, 0.6);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.45);
+            --accent: #ff6b35;
+            --accent-glow: rgba(255, 107, 53, 0.4);
+            --accent-secondary: #7c3aed;
+            --green: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.35);
+            --error: #ef4444;
+            --error-glow: rgba(239, 68, 68, 0.3);
+            --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+            --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+            --shadow-glow: 0 0 40px var(--accent-glow);
+            --transition-fast: 150ms ease;
+            --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+        }
+
+        /* ===== 🌟 Base Reset ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-overflow-scrolling: touch; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Prevent scroll when mobile menu is open */
+        body.menu-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+            z-index: -2;
+            animation: bgPulse 25s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes bgPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.03); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            opacity: 0.25;
+            animation: float 18s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.25; }
+            90% { opacity: 0.25; }
+            100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== 🔗 Navigation ===== */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(15, 12, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+            transition: all var(--transition-normal);
+        }
+        
+        nav.scrolled {
+            height: 64px;
+            background: rgba(15, 12, 26, 0.95);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* ✅ FIXED: Logo size consistent with index.html (1.6rem) */
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem; /* Same as index.html */
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: transform var(--transition-fast);
+            white-space: nowrap;
+            flex-shrink: 0; /* Prevent logo from shrinking */
+        }
+        
+        .logo:hover { transform: scale(1.05); }
+        
+        .nav-right {
+            display: flex;
+            gap: 0.7rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* ===== 📱 Mobile Menu Toggle ===== */
+        .menu-toggle {
+            display: none;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.6rem;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-fast);
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .menu-toggle:hover, .menu-toggle.active {
+            background: var(--surface);
+        }
+        .menu-toggle i {
+            transition: transform var(--transition-normal);
+        }
+        .menu-toggle.active i {
+            transform: rotate(90deg);
+        }
+
+        /* ===== 📱 Mobile Menu Panel ===== */
+        .mobile-menu {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 5%;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.3s ease,
+                        transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+            z-index: 999;
+            backdrop-filter: blur(20px);
+        }
+        .mobile-menu.active {
+            max-height: 85vh;
+            opacity: 1;
+            transform: translateY(0);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .mobile-menu-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
+        }
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 1.2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            min-height: 48px;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link:active {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+        .mobile-nav-link i {
+            width: 24px;
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        .mobile-nav-link.auth-only {
+            display: none;
+        }
+        .mobile-nav-link.auth-only.visible {
+            display: flex;
+        }
+        .mobile-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+        }
+        .mobile-auth-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+        }
+        .mobile-auth-section.hidden {
+            display: none;
+        }
+        .mobile-auth-section .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Mobile Profile Section */
+        .mobile-profile-section {
+            display: none;
+            padding: 0.5rem 0;
+        }
+        .mobile-profile-section.visible {
+            display: block;
+        }
+        .mobile-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+        }
+        .mobile-profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .mobile-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .mobile-profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .mobile-profile-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mobile-profile-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mobile-logout-btn {
+            width: 100%;
+            justify-content: center;
+            color: #ef4444 !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+        .mobile-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        /* Mobile Cart Button */
+        .mobile-cart-btn {
+            display: none;
+        }
+        .mobile-cart-btn.visible {
+            display: flex;
+        }
+
+        /* ===== 🎭 Profile Dropdown (Desktop) ===== */
+        .profile-wrapper {
+            position: relative;
+        }
+        .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border: 2px solid var(--accent);
+            transition: all var(--transition-normal);
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .profile-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .profile-btn img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            min-width: 220px;
+            padding: 0.8rem 0;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all var(--transition-normal);
+            z-index: 1001;
+        }
+        .profile-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            border-top: 1px solid var(--border);
+            transform: rotate(45deg);
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.7rem 1.2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            border-left: 3px solid transparent;
+        }
+        .dropdown-item:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            border-left-color: var(--accent);
+            padding-left: 1.5rem;
+        }
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--accent);
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+        }
+        .dropdown-logout {
+            color: #ef4444 !important;
+        }
+        .dropdown-logout i {
+            color: #ef4444 !important;
+        }
+
+        /* Guest Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .auth-buttons.hidden {
+            display: none;
+        }
+
+        /* ===== ✨ Modern Buttons ===== */
+        .btn {
+            padding: 0.55rem 1.2rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            min-height: 44px;
+            font-family: inherit;
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before { left: 100%; }
+
+        .btn-sm {
+            padding: 0.45rem 1rem;
+            font-size: 0.82rem;
+            border-radius: var(--radius-full);
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-primary);
+            transition: all var(--transition-normal);
+            white-space: nowrap;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+            color: var(--text-primary);
+        }
+
+        .btn-accent {
+            background: var(--gradient-accent);
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+            color: white !important;
+        }
+
+        .btn-lg {
+            padding: 0.9rem 1.8rem;
+            font-size: 0.95rem;
+            border-radius: var(--radius-lg);
+            min-height: 48px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        .btn:disabled,
+        .btn-sm:disabled,
+        .btn-accent:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn.loading {
+            color: transparent !important;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn i {
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .btn-sm i {
+            font-size: 0.8rem;
+        }
+
+        /* ===== 🎨 Main Container ===== */
+        .checkout-container {
+            max-width: 550px;
+            width: 100%;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            animation: slideUp 0.5s ease-out;
+            margin-top: 80px;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        /* ✅ FIXED: Header text visible on all screens including laptop */
+        .checkout-header h2 {
+            font-size: clamp(1.3rem, 4vw, 1.5rem);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .checkout-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        
+        .order-summary {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .order-summary h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0 0 0;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .advance-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+            border: 1px solid var(--green);
+            border-radius: var(--radius-lg);
+            padding: 1.2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .advance-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .advance-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+        
+        .refund-note {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: var(--radius-md);
+            padding: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+        
+        .btn-pay {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
+        }
+        
+        .btn-pay:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+        
+        .btn-pay:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-back {
+            width: 100%;
+            padding: 0.8rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all var(--transition-normal);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--surface-hover);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: var(--error);
+            text-align: center;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            border: 1px solid var(--error);
+        }
+        
+        .manual-confirm {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+            border: 2px solid var(--green);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .manual-confirm.show {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        .btn-manual {
+            background: var(--green);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--transition-normal);
+            min-height: 44px;
+        }
+        
+        .btn-manual:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .btn-retry {
+            background: #f59e0b;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--transition-normal);
+            margin-left: 0.5rem;
+            min-height: 44px;
+        }
+        
+        .btn-retry:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { border-color: var(--green); box-shadow: 0 0 0 0 var(--green-glow); }
+            50% { border-color: var(--green); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+        
+        .payment-status {
+            text-align: center;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: var(--radius-md);
+            display: none;
+            border: 1px solid;
+        }
+        
+        .payment-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+            display: block;
+        }
+        
+        .payment-status.success {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--green);
+            display: block;
+        }
+        
+        .customization-badge {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid var(--accent-secondary);
+            border-radius: var(--radius-md);
+            padding: 0.8rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .error-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .error-card i {
+            font-size: 3rem;
+            color: var(--error);
+            margin-bottom: 1rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 0.8rem 1.5rem;
+            background: var(--green);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.9rem;
+            z-index: 9999;
+            transition: transform var(--transition-normal);
+            white-space: nowrap;
+            max-width: 90vw;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.error {
+            background: var(--error);
+        }
+        
+        .toast.warning {
+            background: #f59e0b;
+        }
+
+        /* ===== 📱 Responsive Design - ✅ FIXED FOR LAPTOP SCREENS ===== */
+        
+        /* Laptop screens (1024px - 1400px) - Header text fix */
+        @media (min-width: 1024px) and (max-width: 1400px) {
+            .checkout-header h2 {
+                font-size: clamp(1.4rem, 3vw, 1.5rem);
+                line-height: 1.25;
+            }
+            .checkout-container {
+                padding: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            
+            nav { padding: 0 4%; height: 68px; }
+            .nav-right { display: none; }
+            .menu-toggle { display: flex; }
+            
+            .checkout-container {
+                padding: 1.5rem;
+                border-radius: var(--radius-lg);
+                margin-top: 70px;
+            }
+            
+            .checkout-header h2 { font-size: 1.3rem; }
+            .checkout-header p { font-size: 0.85rem; }
+            
+            .order-summary { padding: 1.2rem; }
+            .advance-amount { font-size: 1.5rem; }
+            
+            .btn-pay, .btn-back, .btn-manual, .btn-retry {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+            
+            .payment-methods {
+                gap: 0.6rem;
+                font-size: 1.2rem;
+            }
+            /* Mobile menu adjustments */
+            .mobile-menu {
+                top: 68px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .checkout-container {
+                padding: 1.2rem;
+            }
+            .advance-amount { font-size: 1.3rem; }
+            .order-item {
+                flex-direction: column;
+                gap: 0.3rem;
+                text-align: center;
+            }
+            .total-row {
+                flex-direction: column;
+                gap: 0.3rem;
+                text-align: center;
+            }
+            #toast {
+                font-size: 0.85rem;
+                padding: 0.75rem 1.4rem;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 7px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-accent);
+            border-radius: var(--radius-full);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* Mobile menu scrollbar */
+        .mobile-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+        .mobile-menu::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Focus States */
+        a:focus, button:focus, input:focus, select:focus, textarea:focus, .mobile-nav-link:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Safe area for notched devices */
+        @supports (padding: max(0px)) {
+            nav {
+                padding-left: max(5%, env(safe-area-inset-left));
+                padding-right: max(5%, env(safe-area-inset-right));
+            }
+            .mobile-menu {
+                padding-left: max(4%, env(safe-area-inset-left));
+                padding-right: max(4%, env(safe-area-inset-right));
+            }
+            .checkout-container {
+                margin-top: max(80px, env(safe-area-inset-top));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 🔗 Navigation -->
+    <nav id="navbar">
+        <a class="logo" href="index.html">Nova<span style="background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Stack</span></a>
+        
+        <!-- Desktop Right Section -->
+        <div class="nav-right">
+            <!-- Guest View: Login/Signup Buttons -->
+            <div class="auth-buttons" id="authButtons">
+                <a href="login.html" class="btn btn-sm" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="signup.html" class="btn btn-sm btn-accent" id="signup-btn">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+            
+            <!-- Logged In View: Profile Dropdown -->
+            <div class="profile-wrapper" id="profileWrapper" style="display: none;">
+                <div class="profile-btn" id="profileBtn">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="profile.html" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> My Profile
+                    </a>
+                    <a href="my-orders.html" class="dropdown-item">
+                        <i class="fas fa-shopping-bag"></i> My Orders
+                    </a>
+                    <a href="cart.html" class="dropdown-item">
+                        <i class="fas fa-shopping-cart"></i> Cart 
+                        <span class="cart-count" id="cart-count-dropdown">0</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item dropdown-logout" id="dropdownLogout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Toggle -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu Panel -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-inner">
+            <!-- Navigation Links -->
+            <a href="index.html" class="mobile-nav-link" data-close-menu>
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="services.html" class="mobile-nav-link" data-close-menu>
+                <i class="fas fa-layer-group"></i> Services
+            </a>
+            <a href="my-orders.html" class="mobile-nav-link auth-only" data-close-menu>
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </a>
+            <a href="cart.html" class="mobile-nav-link" data-close-menu>
+                <i class="fas fa-shopping-cart"></i> Cart
+            </a>
+            
+            <div class="mobile-divider"></div>
+            
+            <!-- Guest Auth Section -->
+            <div class="mobile-auth-section" id="mobileAuthButtons">
+                <a href="login.html" class="btn btn-outline" data-close-menu>Login</a>
+                <a href="signup.html" class="btn btn-accent" data-close-menu>Sign Up</a>
+            </div>
+            
+            <!-- Logged In Profile Section -->
+            <div class="mobile-profile-section" id="mobileProfileSection">
+                <div class="mobile-profile-header">
+                    <div class="mobile-profile-avatar" id="mobileProfileAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="mobile-profile-info">
+                        <div class="mobile-profile-name" id="mobileProfileName">User</div>
+                        <div class="mobile-profile-email" id="mobileProfileEmail">user@example.com</div>
+                    </div>
+                </div>
+                <a href="profile.html" class="mobile-nav-link" data-close-menu>
+                    <i class="fas fa-user-circle"></i> My Profile
+                </a>
+                <a href="my-orders.html" class="mobile-nav-link" data-close-menu>
+                    <i class="fas fa-shopping-bag"></i> My Orders
+                </a>
+                <a href="cart.html" class="mobile-nav-link mobile-cart-btn" data-close-menu>
+                    <i class="fas fa-shopping-cart"></i> Cart 
+                    <span class="cart-count" id="mobile-cart-count" style="margin-left:auto">0</span>
+                </a>
+                <button class="btn btn-outline mobile-logout-btn" id="mobileLogoutBtn" data-close-menu>
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎨 Main Container -->
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <div class="logo">NovaStack</div>
+            <h2><i class="fas fa-credit-card"></i> Secure Checkout</h2>
+            <p>Pay 15% advance to confirm your order</p>
+        </div>
+        
+        <div id="checkout-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading payment details...</p>
+            </div>
+        </div>
+        
+        <div id="manualConfirm" class="manual-confirm">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--green);"></i>
+            <h3 style="margin: 0.5rem 0;">Payment Completed?</h3>
+            <p style="color: var(--text-secondary);">If you have completed the payment but not redirected, click below to confirm.</p>
+            <button class="btn-manual" onclick="manualConfirm()">
+                <i class="fas fa-check"></i> I Have Completed Payment
+            </button>
+        </div>
+        
+        <div id="paymentStatus" class="payment-status"></div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const CONFIG = {
+            API: 'https://novastack-backend.onrender.com',
+            FRONTEND: window.location.origin,
+            ENDPOINTS: {
+                CREATE_ORDER: '/create-payment-order',
+                VERIFY_PAYMENT: '/verify-payment',
+                CHECK_STATUS: '/check-payment-status',
+                PAYMENT_FAILED: '/payment-failed',
+                USER: '/user',
+                LOGOUT: '/auth/logout',
+                CART_CLEAR: '/cart/clear',
+                MY_ORDERS: '/my-orders',
+                CUSTOM_ORDER: '/order/customize'
+            }
+        };
+        
+        // Global variables
+        let paymentData = null;
+        let isCartCheckout = false;
+        let cartItems = [];
+        let paymentAttemptCount = 0;
+        let isCustomOrder = false;
+        let customizationData = null;
+        let pendingOrderData = null;
+        
+        // Get order details from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let serviceId = urlParams.get('service_id');
+        let serviceTitle = decodeURIComponent(urlParams.get('title') || '');
+        let totalPrice = parseFloat(urlParams.get('price') || 0);
+        
+        // 🔥 NEW: Check if this is a custom order with stored customization
+        isCustomOrder = urlParams.get('custom') === '1';
+        const storedCustomization = localStorage.getItem('pending_customization');
+        const storedOrderData = localStorage.getItem('pending_order_data');
+        
+        // Try to get data from pending_order_data first (new method)
+        if (storedOrderData && !storedCustomization) {
+            try {
+                const orderData = JSON.parse(storedOrderData);
+                console.log('📦 Found pending_order_data:', orderData);
+                
+                // Override checkout data
+                serviceId = orderData.service_id;
+                serviceTitle = orderData.service_title;
+                totalPrice = orderData.total_price;
+                
+                // Store customization for later use
+                customizationData = {
+                    customization: orderData.customization,
+                    requirements: orderData.requirements,
+                    timeline: orderData.timeline,
+                    references: orderData.references
+                };
+                
+                pendingOrderData = orderData;
+                isCustomOrder = true;
+                
+                console.log('✅ Custom order loaded from pending_order_data');
+                
+            } catch(e) {
+                console.error('Error parsing order data:', e);
+            }
+        }
+        // Fallback to old method
+        else if (isCustomOrder && storedCustomization) {
+            try {
+                const customData = JSON.parse(storedCustomization);
+                console.log('📦 Custom order data found (legacy):', customData);
+                
+                // Override checkout data with custom data
+                serviceId = customData.service_id;
+                serviceTitle = customData.service_title;
+                totalPrice = customData.total_price;
+                
+                // Store customization for later use
+                customizationData = {
+                    customization: customData.customization,
+                    requirements: customData.requirements,
+                    timeline: customData.timeline,
+                    references: customData.references
+                };
+                
+                pendingOrderData = customData;
+                
+                console.log('✅ Custom order loaded (legacy):', customizationData);
+                
+            } catch(e) {
+                console.error('Error parsing custom data:', e);
+                isCustomOrder = false;
+            }
+        }
+        
+        // Check for cart checkout
+        cartItems = JSON.parse(localStorage.getItem('dc_cart_local') || '[]');
+        isCartCheckout = cartItems.length > 0 && !serviceId;
+        
+        if (isCartCheckout && cartItems.length > 0) {
+            totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(item.price || 0), 0);
+            serviceTitle = `Cart (${cartItems.length} items)`;
+            serviceId = 0;
+        }
+        
+        console.log('📦 Checkout Data:', { isCartCheckout, isCustomOrder, serviceId, serviceTitle, totalPrice });
+        
+        // ============================================================
+        // AUTH HELPERS
+        // ============================================================
+        const Auth = {
+            getToken() { 
+                const token = localStorage.getItem('dc_token');
+                console.log('🔑 Auth.getToken() called, token present:', !!token);
+                if (!token) {
+                    console.warn('⚠️ No token found in localStorage');
+                }
+                return token || ''; 
+            },
+            getUser() { 
+                try { 
+                    const user = localStorage.getItem('dc_user');
+                    return user ? JSON.parse(user) : null; 
+                } catch(e) { 
+                    console.error('Error parsing user:', e);
+                    return null; 
+                } 
+            },
+            isLoggedIn() {
+                return !!this.getToken();
+            }
+        };
+        
+        // ============================================================
+        // UI HELPERS
+        // ============================================================
+        function showToast(message, type = 'success') {
+            let toast = document.querySelector('.toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('checkout-content');
+            if (container) {
+                container.innerHTML = `
+                    <div class="error-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Something went wrong</h3>
+                        <p style="margin: 1rem 0;">${escapeHtml(message)}</p>
+                        <button class="btn-back" onclick="window.location.href='${isCartCheckout ? 'cart.html' : (isCustomOrder ? 'order-customize.html?id=' + serviceId : 'services.html')}'">
+                            ← Go Back
+                        </button>
+                        <button class="btn-retry" onclick="location.reload()" style="margin-left: 0.5rem;">
+                            <i class="fas fa-sync"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+            showToast(message, 'error');
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ============================================================
+        // CHECK AUTHENTICATION
+        // ============================================================
+        function checkAuth() {
+            const token = Auth.getToken();
+            if (!token) {
+                console.log('❌ No token found, redirecting to login');
+                const currentUrl = encodeURIComponent(window.location.href);
+                window.location.href = `login.html?redirect=${currentUrl}`;
+                return false;
+            }
+            return true;
+        }
+        
+        // ============================================================
+        // LOAD PAYMENT
+        // ============================================================
+        async function loadPayment() {
+            // Check authentication first
+            if (!checkAuth()) {
+                return;
+            }
+            
+            const token = Auth.getToken();
+            console.log('🔑 Token present for payment creation');
+            
+            if (!totalPrice || totalPrice <= 0) {
+                showError('Invalid order amount. Please go back and try again.');
+                return;
+            }
+            
+            try {
+                // 🔥 For custom orders, include customization data in the payment order
+                let payload = {
+                    service_id: parseInt(serviceId) || 0,
+                    service_title: serviceTitle,
+                    total_price: totalPrice,
+                    quantity: isCartCheckout ? cartItems.length : 1
+                };
+                
+                // If custom order, add customization and requirements
+                if (isCustomOrder && customizationData) {
+                    payload.customization = customizationData.customization;
+                    payload.requirements = customizationData.requirements;
+                    console.log('📝 Adding custom order data to payment payload');
+                }
+                
+                console.log('📤 Creating payment order...');
+                console.log('URL:', `${CONFIG.API}${CONFIG.ENDPOINTS.CREATE_ORDER}`);
+                console.log('Payload:', payload);
+                
+                const res = await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CREATE_ORDER}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('📥 Response status:', res.status);
+                const data = await res.json();
+                console.log('📥 Response data:', data);
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to create payment order');
+                }
+                
+                paymentData = data.data;
+                
+                if (!paymentData || !paymentData.key_id) {
+                    throw new Error('Payment configuration error');
+                }
+                
+                renderCheckout();
+                
+            } catch (error) {
+                console.error('❌ Error loading payment:', error);
+                showError(error.message);
+            }
+        }
+        
+        // ============================================================
+        // RENDER CHECKOUT UI
+        // ============================================================
+        function renderCheckout() {
+            const advance = paymentData.advance;
+            const total = paymentData.total;
+            
+            let itemsHtml = '';
+            
+            if (isCartCheckout && cartItems.length > 0) {
+                itemsHtml = cartItems.map(item => `
+                    <div class="order-item">
+                        <span>${escapeHtml(item.title)}</span>
+                        <span>₹${item.price}</span>
+                    </div>
+                `).join('');
+            } else {
+                itemsHtml = `
+                    <div class="order-item">
+                        <span>${escapeHtml(serviceTitle)}</span>
+                        <span>₹${total}</span>
+                    </div>
+                `;
+            }
+            
+            // 🔥 Show customization summary for custom orders
+            let customizationHtml = '';
+            if (isCustomOrder && customizationData) {
+                const customFields = customizationData.customization || {};
+                const customEntries = Object.entries(customFields).filter(([key, val]) => val && val !== '');
+                
+                if (customEntries.length > 0) {
+                    customizationHtml = `
+                        <div class="customization-badge">
+                            <i class="fas fa-sliders-h"></i> <strong>Customization:</strong>
+                            ${customEntries.slice(0, 3).map(([key, val]) => 
+                                `<div style="font-size:0.8rem; margin-top:0.3rem;">• ${escapeHtml(key)}: ${escapeHtml(String(val).substring(0, 50))}</div>`
+                            ).join('')}
+                            ${customEntries.length > 3 ? `<div style="font-size:0.75rem; margin-top:0.3rem;">+${customEntries.length - 3} more options</div>` : ''}
+                        </div>
+                    `;
+                }
+            }
+            
+            const html = `
+                <div class="order-summary">
+                    <h3><i class="fas fa-shopping-bag"></i> Order Summary</h3>
+                    ${itemsHtml}
+                    ${customizationHtml}
+                    <div class="total-row">
+                        <span>Total Amount</span>
+                        <span>₹${total}</span>
+                    </div>
+                </div>
+                
+                <div class="advance-card">
+                    <div class="advance-label">Pay 15% Advance</div>
+                    <div class="advance-amount">₹${advance}</div>
+                    <div style="font-size: 0.8rem;">Remaining 85% after delivery</div>
+                </div>
+                
+                <div class="refund-note">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>100% refund within 24 hours (minus 2% gateway fee).</span>
+                </div>
+                
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fas fa-mobile-alt"></i>
+                    <i class="fab fa-google-pay"></i>
+                    <i class="fab fa-apple-pay"></i>
+                </div>
+                
+                <button class="btn-pay" id="pay-button">
+                    <i class="fas fa-lock"></i> Pay ₹${advance} Now
+                </button>
+                <button class="btn-back" onclick="window.location.href='${isCartCheckout ? 'cart.html' : (isCustomOrder ? `order-customize.html?id=${serviceId}` : 'services.html')}'">
+                    ← Back
+                </button>
+            `;
+            
+            document.getElementById('checkout-content').innerHTML = html;
+            document.getElementById('pay-button').addEventListener('click', initPayment);
+        }
+        
+        // ============================================================
+        // INITIATE PAYMENT
+        // ============================================================
+        function initPayment() {
+            // Check authentication again before payment
+            if (!checkAuth()) {
+                return;
+            }
+            
+            const token = Auth.getToken();
+            if (!token) {
+                showError('Please login to continue');
+                window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+                return;
+            }
+            
+            const user = Auth.getUser() || {};
+            const advance = paymentData.advance;
+            
+            // Store pending payment
+            localStorage.setItem('pending_payment', JSON.stringify({
+                order_id: paymentData.razorpay_order_id,
+                amount: advance,
+                timestamp: new Date().toISOString(),
+                attempt: ++paymentAttemptCount,
+                is_custom: isCustomOrder,
+                customization: customizationData
+            }));
+            
+            const options = {
+                key: paymentData.key_id,
+                amount: Math.round(advance * 100),
+                currency: "INR",
+                name: "NovaStack",
+                description: `15% Advance for ${isCustomOrder ? 'Custom Order' : (isCartCheckout ? 'Cart Items' : serviceTitle)}`,
+                order_id: paymentData.razorpay_order_id,
+                handler: function(response) {
+                    console.log('💰 Payment Response:', response);
+                    localStorage.removeItem('pending_payment');
+                    verifyPayment(response);
+                },
+                modal: {
+                    ondismiss: function() {
+                        console.log('Payment modal closed by user');
+                        const btn = document.getElementById('pay-button');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${advance} Now`;
+                        }
+                        document.getElementById('manualConfirm').classList.add('show');
+                        showToast('Payment cancelled. You can try again.', 'warning');
+                    }
+                },
+                prefill: {
+                    name: user.name || '',
+                    email: user.email || '',
+                    contact: ''
+                },
+                theme: {
+                    color: "#ff6b35"
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function(response) {
+                console.error('❌ Payment Failed:', response.error);
+                const errorMessage = response.error.description || response.error.reason || 'Payment failed';
+                
+                // Log failure to backend
+                fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.PAYMENT_FAILED}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id: paymentData.razorpay_order_id,
+                        error: response.error.code,
+                        error_description: errorMessage,
+                        user_id: Auth.getUser()?.id
+                    })
+                }).catch(e => console.error('Failed to log error:', e));
+                
+                showToast('Payment failed: ' + errorMessage, 'error');
+                
+                const btn = document.getElementById('pay-button');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${advance} Now`;
+                }
+                localStorage.removeItem('pending_payment');
+            });
+            
+            const btn = document.getElementById('pay-button');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening payment...';
+            }
+            
+            rzp.open();
+        }
+        
+        // ============================================================
+        // VERIFY PAYMENT - WITH CUSTOM ORDER HANDLING
+        // ============================================================
+        async function verifyPayment(response) {
+            console.log('💰 Starting payment verification...');
+            
+            const token = Auth.getToken();
+            if (!token) {
+                showToast('Session expired. Please login again.', 'error');
+                setTimeout(() => {
+                    window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+                }, 2000);
+                return;
+            }
+            
+            const btn = document.getElementById('pay-button');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying payment...';
+            }
+            
+            try {
+                // 🔥 STEP 1: Verify payment with backend FIRST
+                const verifyRes = await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.VERIFY_PAYMENT}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                });
+                
+                const verifyData = await verifyRes.json();
+                
+                if (!verifyRes.ok) {
+                    throw new Error(verifyData.error || 'Payment verification failed');
+                }
+                
+                console.log('✅ Payment verified successfully!');
+                
+                // 🔥 STEP 2: Get order data from verification response
+                const orderData = verifyData.data;
+                
+                // 🔥 STEP 3: Only now create custom order (if custom order)
+                if (isCustomOrder && customizationData) {
+                    try {
+                        // Check if order already exists (to avoid duplicates)
+                        const checkRes = await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.MY_ORDERS}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const ordersData = await checkRes.json();
+                        
+                        const existingOrder = ordersData.orders?.find(o => 
+                            o.service_id === parseInt(serviceId) && 
+                            (o.status === 'payment_received' || o.status === 'in_progress')
+                        );
+                        
+                        if (!existingOrder) {
+                            // Only create new order if doesn't exist
+                            await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CUSTOM_ORDER}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    service_id: parseInt(serviceId),
+                                    customization: customizationData.customization,
+                                    requirements: customizationData.requirements
+                                })
+                            });
+                            console.log('✅ Custom order created');
+                        }
+                    } catch (customError) {
+                        console.warn('Custom order creation warning:', customError);
+                    }
+                    
+                    // Clear stored customization
+                    localStorage.removeItem('pending_customization');
+                    localStorage.removeItem('pending_order_data');
+                }
+                
+                // 🔥 STEP 4: Clear cart if cart checkout
+                if (isCartCheckout) {
+                    // Clear cart from localStorage
+                    localStorage.removeItem('dc_cart_local');
+                    
+                    // Also clear from backend
+                    try {
+                        await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CART_CLEAR}`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                    } catch(e) { console.warn('Cart clear warning:', e); }
+                }
+                
+                // Clear pending payment data
+                localStorage.removeItem('pending_payment');
+                localStorage.removeItem('pending_payment_recovery');
+                
+                // Store last order info
+                localStorage.setItem('dc_last_order', JSON.stringify({
+                    order_id: orderData.order_id,
+                    advance_paid: orderData.advance_paid,
+                    total: orderData.total,
+                    balance_due: orderData.balance_due,
+                    is_custom: isCustomOrder
+                }));
+                
+                showToast('✅ Payment successful! Order confirmed.');
+                
+                // Redirect to order confirmation page
+                setTimeout(() => {
+                    window.location.href = `order-confirmed.html?order_id=${orderData.order_id}`;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Verification error:', error);
+                showToast(error.message, 'error');
+                
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${paymentData?.advance || 0} Now`;
+                }
+                
+                // Show manual confirmation button
+                document.getElementById('manualConfirm').classList.add('show');
+            }
+        }
+        
+        // ============================================================
+        // MANUAL CONFIRMATION - WITH CUSTOM ORDER HANDLING
+        // ============================================================
+        async function manualConfirm() {
+            console.log('🔧 Manual confirmation triggered');
+            
+            const token = Auth.getToken();
+            if (!token) {
+                showToast('Please login to confirm order', 'error');
+                window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+                return;
+            }
+            
+            const pendingPayment = localStorage.getItem('pending_payment_recovery') || localStorage.getItem('pending_payment');
+            
+            if (!pendingPayment) {
+                showToast('No pending payment found.', 'error');
+                window.location.reload();
+                return;
+            }
+            
+            const payment = JSON.parse(pendingPayment);
+            
+            const statusDiv = document.getElementById('paymentStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = `
+                    <div class="payment-status pending">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Checking payment status...</p>
+                    </div>
+                `;
+            }
+            
+            try {
+                // First check if payment was already verified
+                const checkRes = await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CHECK_STATUS}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id: payment.razorpay_order_id
+                    })
+                });
+                
+                const checkData = await checkRes.json();
+                
+                if (checkData.success && checkData.paid) {
+                    // Payment was successful, try to create order
+                    if (isCustomOrder && customizationData) {
+                        await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CUSTOM_ORDER}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                service_id: parseInt(serviceId),
+                                customization: customizationData.customization,
+                                requirements: customizationData.requirements
+                            })
+                        });
+                    }
+                    
+                    if (isCartCheckout) {
+                        localStorage.removeItem('dc_cart_local');
+                    }
+                    
+                    localStorage.removeItem('pending_payment_recovery');
+                    localStorage.removeItem('pending_payment');
+                    
+                    showToast('✅ Order confirmed!');
+                    setTimeout(() => {
+                        window.location.href = `order-confirmed.html?order_id=${payment.razorpay_order_id}`;
+                    }, 1500);
+                    
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="payment-status pending">
+                            <i class="fas fa-hourglass-half"></i>
+                            <p>Payment still processing. Please wait a moment.</p>
+                            <button class="btn-manual" onclick="manualConfirm()">
+                                <i class="fas fa-sync"></i> Check Again
+                            </button>
+                            <button class="btn-back" onclick="window.location.href='${isCartCheckout ? 'cart.html' : 'services.html'}'">
+                                ← Go to Services
+                            </button>
+                        </div>
+                    `;
+                    showToast('Payment still processing. Please wait.', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Manual confirmation error:', error);
+                statusDiv.innerHTML = `
+                    <div class="payment-status pending">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Could not verify payment status.</p>
+                        <p style="font-size: 0.85rem;">Your payment was successful. Our team will confirm your order shortly.</p>
+                        <button class="btn-manual" onclick="manualConfirm()">
+                            <i class="fas fa-sync"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================================
+        // RETRY PAYMENT
+        // ============================================================
+        async function retryPayment() {
+            const token = Auth.getToken();
+            if (!token) {
+                window.location.href = `login.html?redirect=checkout.html${window.location.search}`;
+                return;
+            }
+            
+            showToast('Retrying payment...', 'warning');
+            
+            try {
+                let payload = {
+                    service_id: parseInt(serviceId) || 0,
+                    service_title: serviceTitle,
+                    total_price: totalPrice,
+                    quantity: isCartCheckout ? cartItems.length : 1
+                };
+                
+                if (isCustomOrder && customizationData) {
+                    payload.customization = customizationData.customization;
+                    payload.requirements = customizationData.requirements;
+                }
+                
+                const res = await fetch(`${CONFIG.API}${CONFIG.ENDPOINTS.CREATE_ORDER}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Failed to create payment order');
+                }
+                
+                paymentData = data.data;
+                renderCheckout();
+                setTimeout(() => initPayment(), 500);
+                
+            } catch (error) {
+                console.error('❌ Retry error:', error);
+                showToast('Failed to retry: ' + error.message, 'error');
+            }
+        }
+        
+        // ============================================================
+        // Mobile Menu Toggle ─────────────────────────────────────────
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        function toggleMobileMenu() {
+            const isActive = mobileMenu.classList.toggle('active');
+            menuToggle.classList.toggle('active', isActive);
+            menuToggle.setAttribute('aria-expanded', isActive);
+            
+            if (isActive) {
+                document.body.classList.add('menu-open');
+                document.body.dataset.scrollY = window.scrollY;
+            } else {
+                document.body.classList.remove('menu-open');
+                if (document.body.dataset.scrollY) {
+                    window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+                    delete document.body.dataset.scrollY;
+                }
+            }
+        }
+        
+        menuToggle.addEventListener('click', toggleMobileMenu);
+        
+        // Close menu when clicking any link with data-close-menu
+        document.querySelectorAll('[data-close-menu]').forEach(link => {
+            link.addEventListener('click', () => {
+                if (mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.classList.remove('menu-open');
+                    
+                    if (document.body.dataset.scrollY) {
+                        setTimeout(() => {
+                            window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+                            delete document.body.dataset.scrollY;
+                        }, 300);
+                    }
+                }
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.classList.remove('menu-open');
+                
+                if (document.body.dataset.scrollY) {
+                    setTimeout(() => {
+                        window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+                        delete document.body.dataset.scrollY;
+                    }, 300);
+                }
+            }
+        });
+        
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                toggleMobileMenu();
+                menuToggle.focus();
+            }
+        });
+        
+        // Handle window resize - close menu if switching to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
+                menuToggle.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+            
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                mobileMenu.style.top = '64px';
+            } else {
+                mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+            }
+        });
+        
+        // Profile Dropdown Toggle (Desktop)
+        document.getElementById('profileBtn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = document.getElementById('profileBtn');
+            if (dropdown && !profileBtn?.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        document.getElementById('dropdownLogout')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Logout logic
+            localStorage.removeItem('dc_token');
+            localStorage.removeItem('dc_user');
+            window.location.reload();
+        });
+        
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('dc_token');
+            localStorage.removeItem('dc_user');
+            window.location.href = 'index.html';
+        });
+        
+        // Update Auth UI
+        function updateAuthUI() {
+            const isLoggedIn = Auth.isLoggedIn();
+            const user = Auth.getUser();
+            
+            if (isLoggedIn && user) {
+                document.getElementById('authButtons').classList.add('hidden');
+                document.getElementById('profileWrapper').style.display = 'block';
+                document.getElementById('mobileAuthButtons').classList.add('hidden');
+                document.getElementById('mobileProfileSection').classList.add('visible');
+                
+                document.querySelectorAll('.auth-only').forEach(el => {
+                    el.style.display = el.tagName === 'LI' ? 'block' : 'inline-flex';
+                    if (el.classList.contains('mobile-nav-link')) {
+                        el.classList.add('visible');
+                    }
+                });
+                
+                const profileBtn = document.getElementById('profileBtn');
+                if (user.avatar) {
+                    profileBtn.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+                } else {
+                    const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+                    profileBtn.textContent = initial;
+                }
+                
+                const mobileAvatar = document.getElementById('mobileProfileAvatar');
+                const mobileName = document.getElementById('mobileProfileName');
+                const mobileEmail = document.getElementById('mobileProfileEmail');
+                
+                if (user.avatar) {
+                    mobileAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+                } else {
+                    const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+                    mobileAvatar.textContent = initial;
+                }
+                mobileName.textContent = user.name || user.email || 'User';
+                mobileEmail.textContent = user.email || '';
+                
+            } else {
+                document.getElementById('authButtons').classList.remove('hidden');
+                document.getElementById('profileWrapper').style.display = 'none';
+                document.getElementById('mobileAuthButtons').classList.remove('hidden');
+                document.getElementById('mobileProfileSection').classList.remove('visible');
+                
+                document.querySelectorAll('.auth-only').forEach(el => {
+                    el.style.display = 'none';
+                    if (el.classList.contains('mobile-nav-link')) {
+                        el.classList.remove('visible');
+                    }
+                });
+            }
+        }
+        
+        // Create Floating Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#ff6b35', '#7c3aed', '#3b82f6', '#10b981'];
+            
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 18 + 's';
+                particle.style.animationDuration = (18 + Math.random() * 12) + 's';
+                particle.style.background = colors[i % colors.length];
+                particle.style.width = particle.style.height = (2 + Math.random() * 4) + 'px';
+                particle.style.opacity = 0.15 + Math.random() * 0.3;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+                mobileMenu.style.top = '64px';
+            } else {
+                nav.classList.remove('scrolled');
+                mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+            }
+        });
+        
+        // ============================================================
+        // START
+        // ============================================================
+        console.log('🚀 Starting checkout page...');
+        console.log('📦 Custom order mode:', isCustomOrder);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            loadPayment();
+        });
+        
+        // Prevent zoom on double-tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>

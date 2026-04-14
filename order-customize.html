@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Customize Order — NovaStack</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="logo.png">
+  
+  <style>
+    /* ===== 🎨 Modern CSS Variables (Matching Design System) ===== */
+    :root {
+      --bg-primary: #0f0c1a;
+      --bg-secondary: #1a162a;
+      --bg-card: rgba(26, 22, 42, 0.85);
+      --surface: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.15);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(232, 93, 38, 0.6);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.75);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --accent: #ff6b35;
+      --accent-glow: rgba(255, 107, 53, 0.4);
+      --accent-secondary: #7c3aed;
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
+      --error: #ef4444;
+      --error-glow: rgba(239, 68, 68, 0.3);
+      --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #f7c531 100%);
+      --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      --gradient-form: linear-gradient(180deg, #1a162a 0%, #0f0c1a 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 40px var(--accent-glow);
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+    }
+
+    /* ===== 🌟 Base Reset ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-overflow-scrolling: touch; }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Prevent scroll when mobile menu is open */
+    body.menu-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+      z-index: -2;
+      animation: bgPulse 25s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes bgPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.03); }
+    }
+
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      opacity: 0.25;
+      animation: float 18s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.25; }
+      90% { opacity: 0.25; }
+      100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== 🔗 Navigation ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(15, 12, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      transition: all var(--transition-normal);
+    }
+    
+    nav.scrolled {
+      height: 64px;
+      background: rgba(15, 12, 26, 0.95);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* ✅ FIXED: Logo size consistent with index.html (1.6rem) */
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem; /* Same as index.html */
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform var(--transition-fast);
+      white-space: nowrap;
+      flex-shrink: 0; /* Prevent logo from shrinking */
+    }
+    
+    .logo:hover { transform: scale(1.05); }
+    .logo span {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== 📱 Mobile Menu Toggle ===== */
+    .menu-toggle {
+      display: none;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .menu-toggle:hover, .menu-toggle.active {
+      background: var(--surface);
+    }
+    .menu-toggle i {
+      transition: transform var(--transition-normal);
+    }
+    .menu-toggle.active i {
+      transform: rotate(90deg);
+    }
+
+    /* ===== 📱 Mobile Menu Panel ===== */
+    .mobile-menu {
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 5%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  opacity 0.3s ease,
+                  transform 0.3s ease;
+      opacity: 0;
+      transform: translateY(-10px);
+      z-index: 999;
+      backdrop-filter: blur(20px);
+    }
+    .mobile-menu.active {
+      max-height: 85vh;
+      opacity: 1;
+      transform: translateY(0);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-menu-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-bottom: 1rem;
+    }
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem 1.2rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      min-height: 48px;
+    }
+    .mobile-nav-link:hover, .mobile-nav-link:active {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      transform: translateX(4px);
+    }
+    .mobile-nav-link i {
+      width: 24px;
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+    .mobile-nav-link.auth-only {
+      display: none;
+    }
+    .mobile-nav-link.auth-only.visible {
+      display: flex;
+    }
+    .mobile-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+    .mobile-auth-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 0.5rem 0;
+    }
+    .mobile-auth-section.hidden {
+      display: none;
+    }
+    .mobile-auth-section .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Mobile Profile Section */
+    .mobile-profile-section {
+      display: none;
+      padding: 0.5rem 0;
+    }
+    .mobile-profile-section.visible {
+      display: block;
+    }
+    .mobile-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem 1.2rem;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.5rem;
+    }
+    .mobile-profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .mobile-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .mobile-profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .mobile-profile-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-profile-email {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-logout-btn {
+      width: 100%;
+      justify-content: center;
+      color: #ef4444 !important;
+      border-color: rgba(239, 68, 68, 0.3) !important;
+    }
+    .mobile-logout-btn:hover {
+      background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    /* Mobile Cart Button */
+    .mobile-cart-btn {
+      display: none;
+    }
+    .mobile-cart-btn.visible {
+      display: flex;
+    }
+
+    /* ===== 🎭 Profile Dropdown (Desktop) ===== */
+    .profile-wrapper {
+      position: relative;
+    }
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      border: 2px solid var(--accent);
+      transition: all var(--transition-normal);
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .profile-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .profile-btn img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      min-width: 220px;
+      padding: 0.8rem 0;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all var(--transition-normal);
+      z-index: 1001;
+    }
+    .profile-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .profile-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 20px;
+      width: 12px;
+      height: 12px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1.2rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all var(--transition-fast);
+      border-left: 3px solid transparent;
+    }
+    .dropdown-item:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border-left-color: var(--accent);
+      padding-left: 1.5rem;
+    }
+    .dropdown-item i {
+      width: 20px;
+      text-align: center;
+      color: var(--accent);
+    }
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+    .dropdown-logout {
+      color: #ef4444 !important;
+    }
+    .dropdown-logout i {
+      color: #ef4444 !important;
+    }
+
+    /* Guest Auth Buttons */
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .auth-buttons.hidden {
+      display: none;
+    }
+
+    /* ===== 🎨 Main Container ===== */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 100px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Back Button */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      transition: all var(--transition-fast);
+      padding: 0.5rem 0.8rem;
+      border-radius: var(--radius-md);
+      min-height: 44px;
+    }
+    
+    .back-link:hover {
+      color: var(--accent);
+      background: var(--surface);
+      transform: translateX(-4px);
+    }
+    
+    .back-link i { font-size: 0.85rem; }
+
+    /* ===== 📋 Customization Card ===== */
+    .customization-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.5s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .customization-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--gradient-accent);
+      opacity: 0.8;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Service Header */
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .service-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      background: var(--gradient-hero);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      animation: floatIcon 4s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    /* ✅ FIXED: Header text visible on all screens including laptop */
+    .service-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    .service-price {
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .service-price::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+
+    /* ===== 📊 Progress Indicator ===== */
+    .progress-container {
+      margin-bottom: 2.5rem;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+    
+    .progress-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .progress-percent {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background: var(--surface);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--gradient-accent);
+      border-radius: var(--radius-full);
+      transition: width var(--transition-normal);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ===== 📝 Form Styles ===== */
+    .form-section {
+      margin-bottom: 2rem;
+      padding-bottom: 1.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .form-section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .form-section-title i {
+      color: var(--accent);
+      font-size: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.3rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .form-group label i {
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--accent);
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all var(--transition-normal);
+      min-height: 44px;
+    }
+    
+    input::placeholder,
+    select::placeholder,
+    textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+    
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+      background: var(--surface-hover);
+    }
+    
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ff6b35' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+    
+    select option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      padding: 0.8rem;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    
+    /* Checkbox/Radio Groups */
+    .checkbox-group,
+    .radio-group {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      min-height: 44px;
+    }
+    
+    .checkbox-group:hover,
+    .radio-group:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+    
+    .checkbox-group input,
+    .radio-group input {
+      width: auto;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    
+    .checkbox-group label,
+    .radio-group label {
+      margin: 0;
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.9rem;
+    }
+    
+    /* Multi-select Tags */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .tag-option {
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      user-select: none;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .tag-option:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+    
+    .tag-option.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    /* ===== 🎯 Action Buttons ===== */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: var(--radius-lg);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      box-shadow: 0 6px 25px var(--accent-glow);
+      position: relative;
+      overflow: hidden;
+      min-height: 48px;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-primary:hover:not(:disabled)::before { left: 100%; }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px var(--accent-glow);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .btn-primary.loading {
+      color: transparent;
+      pointer-events: none;
+    }
+    
+    .btn-primary.loading::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .btn-secondary {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+      min-height: 44px;
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Payment Info Card */
+    .payment-info {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+      border: 1px solid var(--green);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    
+    .payment-info .info-text {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--green);
+      font-weight: 500;
+    }
+    
+    .payment-info .info-text i {
+      font-size: 1.2rem;
+    }
+    
+    .payment-info .advance-amount {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    /* ===== ⚠️ Loading & Error States ===== */
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    
+    .loading-state p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    .error-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    .error-state .icon {
+      font-size: 3.5rem;
+      color: var(--error);
+      margin-bottom: 1rem;
+      animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    
+    .error-state h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      color: var(--error);
+      margin-bottom: 0.5rem;
+    }
+    
+    .error-state p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* ===== 🍞 Toast Notification ===== */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 0.9rem 1.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 9999;
+      transition: transform var(--transition-normal);
+      white-space: nowrap;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
+      font-family: inherit;
+      max-width: 90vw;
+    }
+    
+    #toast.success {
+      background: linear-gradient(135deg, var(--green), #059669);
+    }
+    
+    #toast.error {
+      background: linear-gradient(135deg, var(--error), #b91c1c);
+    }
+    
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== 📱 Responsive Design - ✅ FIXED FOR LAPTOP SCREENS ===== */
+    
+    /* Laptop screens (1024px - 1400px) - Header text fix */
+    @media (min-width: 1024px) and (max-width: 1400px) {
+      .service-title {
+        font-size: clamp(1.4rem, 3vw, 1.6rem);
+        line-height: 1.25;
+      }
+      .service-price {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1.5rem 1rem; }
+      .container { padding-top: 90px; }
+      
+      nav { padding: 0 4%; height: 68px; }
+      .nav-right { display: none; }
+      .menu-toggle { display: flex; }
+      
+      .customization-card {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+      }
+      
+      .service-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .service-title { font-size: 1.4rem; }
+      .service-price { font-size: 1.3rem; }
+      
+      .form-section-title { font-size: 1rem; }
+      
+      .btn-primary, .btn-secondary {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+      }
+      
+      .payment-info {
+        flex-direction: column;
+        text-align: center;
+      }
+      /* Mobile menu adjustments */
+      .mobile-menu {
+        top: 68px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+      }
+      
+      .service-title { font-size: 1.3rem; }
+      .service-price { font-size: 1.2rem; }
+      
+      input, select, textarea {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .tags-container {
+        gap: 0.4rem;
+      }
+      
+      .tag-option {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      #toast {
+        font-size: 0.85rem;
+        padding: 0.75rem 1.4rem;
+      }
+    }
+
+    /* ===== 🎭 Scroll Animations ===== */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    }
+    
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-accent);
+      border-radius: var(--radius-full);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* Mobile menu scrollbar */
+    .mobile-menu::-webkit-scrollbar {
+      width: 4px;
+    }
+    .mobile-menu::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Focus States */
+    a:focus, button:focus, input:focus, select:focus, textarea:focus, .mobile-nav-link:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Safe area for notched devices */
+    @supports (padding: max(0px)) {
+      nav {
+        padding-left: max(5%, env(safe-area-inset-left));
+        padding-right: max(5%, env(safe-area-inset-right));
+      }
+      .mobile-menu {
+        padding-left: max(4%, env(safe-area-inset-left));
+        padding-right: max(4%, env(safe-area-inset-right));
+      }
+    }
+
+    /* ===== ✨ Modern Buttons - FIXED STYLING ===== */
+
+/* Base Button Styles */
+.btn {
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  min-height: 44px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before { left: 100%; }
+
+/* Small Button - Login/Signup */
+.btn-sm {
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-sm:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+  color: var(--text-primary);
+}
+
+/* Accent Button - Primary Action (Sign Up) */
+.btn-accent {
+  background: var(--gradient-accent);
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.btn-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--accent-glow);
+  color: white !important;
+}
+
+/* Large Button */
+.btn-lg {
+  padding: 0.9rem 1.8rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius-lg);
+  min-height: 48px;
+}
+
+/* Outline Button */
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+/* Disabled State */
+.btn:disabled,
+.btn-sm:disabled,
+.btn-accent:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading State */
+.btn.loading {
+  color: transparent !important;
+  pointer-events: none;
+  position: relative;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Button with Icon */
+.btn i {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.btn-sm i {
+  font-size: 0.8rem;
+}
+  </style>
+</head>
+<body>
+
+<!-- Animated Particles Background -->
+<div class="particles" id="particles"></div>
+
+<!-- 🔗 Navigation -->
+<nav id="navbar">
+  <a class="logo" href="index.html"><i class="fas fa-code"></i> Nova<span>Stack</span></a>
+  
+  <!-- Desktop Right Section -->
+  <div class="nav-right">
+    <!-- Guest View: Login/Signup Buttons -->
+    <div class="auth-buttons" id="authButtons">
+      <a href="login.html" class="btn-sm" id="login-btn">Login</a>
+      <a href="signup.html" class="btn-sm btn-accent" id="signup-btn">Sign Up</a>
+    </div>
+    
+    <!-- Logged In View: Profile Dropdown -->
+    <div class="profile-wrapper" id="profileWrapper" style="display: none;">
+      <div class="profile-btn" id="profileBtn">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="profile.html" class="dropdown-item">
+          <i class="fas fa-user-circle"></i> My Profile
+        </a>
+        <a href="my-orders.html" class="dropdown-item">
+          <i class="fas fa-shopping-bag"></i> My Orders
+        </a>
+        <a href="cart.html" class="dropdown-item">
+          <i class="fas fa-shopping-cart"></i> Cart 
+          <span class="cart-count" id="cart-count-dropdown">0</span>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item dropdown-logout" id="dropdownLogout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mobile Menu Toggle -->
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+  </button>
+</nav>
+
+<!-- Mobile Menu Panel -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-inner">
+    <!-- Navigation Links -->
+    <a href="index.html" class="mobile-nav-link" data-close-menu>
+      <i class="fas fa-home"></i> Home
+    </a>
+    <a href="services.html" class="mobile-nav-link" data-close-menu>
+      <i class="fas fa-layer-group"></i> Services
+    </a>
+    <a href="my-orders.html" class="mobile-nav-link auth-only" data-close-menu>
+      <i class="fas fa-shopping-bag"></i> My Orders
+    </a>
+    <a href="cart.html" class="mobile-nav-link" data-close-menu>
+      <i class="fas fa-shopping-cart"></i> Cart
+    </a>
+    
+    <div class="mobile-divider"></div>
+    
+    <!-- Guest Auth Section -->
+    <div class="mobile-auth-section" id="mobileAuthButtons">
+      <a href="login.html" class="btn btn-outline" data-close-menu>Login</a>
+      <a href="signup.html" class="btn btn-accent" data-close-menu>Sign Up</a>
+    </div>
+    
+    <!-- Logged In Profile Section -->
+    <div class="mobile-profile-section" id="mobileProfileSection">
+      <div class="mobile-profile-header">
+        <div class="mobile-profile-avatar" id="mobileProfileAvatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="mobile-profile-info">
+          <div class="mobile-profile-name" id="mobileProfileName">User</div>
+          <div class="mobile-profile-email" id="mobileProfileEmail">user@example.com</div>
+        </div>
+      </div>
+      <a href="profile.html" class="mobile-nav-link" data-close-menu>
+        <i class="fas fa-user-circle"></i> My Profile
+      </a>
+      <a href="my-orders.html" class="mobile-nav-link" data-close-menu>
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </a>
+      <a href="cart.html" class="mobile-nav-link mobile-cart-btn" data-close-menu>
+        <i class="fas fa-shopping-cart"></i> Cart 
+        <span class="cart-count" id="mobile-cart-count" style="margin-left:auto">0</span>
+      </a>
+      <button class="btn btn-outline mobile-logout-btn" id="mobileLogoutBtn" data-close-menu>
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 🎨 Main Container -->
+<div class="container">
+  <!-- Back Link -->
+  <a href="services.html" class="back-link">
+    <i class="fas fa-arrow-left"></i> Back to Services
+  </a>
+  
+  <!-- Customization Card -->
+  <div class="customization-card" id="customization-card">
+    <div id="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading service details...</p>
+    </div>
+  </div>
+</div>
+
+<!-- 🍞 Toast Notification -->
+<div id="toast" style="display:none"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+const CONFIG = { 
+  API: 'https://novastack-backend.onrender.com',
+  ENDPOINTS: {
+    SERVICE: '/service',
+    USER: '/user',
+    LOGOUT: '/auth/logout'
+  }
+};
+
+// ── Create Floating Particles ─────────────────────────────────────────────
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#ff6b35', '#7c3aed', '#3b82f6', '#10b981'];
+  
+  for (let i = 0; i < 35; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 18 + 's';
+    particle.style.animationDuration = (18 + Math.random() * 12) + 's';
+    particle.style.background = colors[i % colors.length];
+    particle.style.width = particle.style.height = (2 + Math.random() * 4) + 'px';
+    particle.style.opacity = 0.15 + Math.random() * 0.3;
+    container.appendChild(particle);
+  }
+}
+createParticles();
+
+// ── Navbar Scroll Effect ──────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  const mobileMenu = document.getElementById('mobileMenu');
+  
+  if (window.scrollY > 50) {
+    nav.classList.add('scrolled');
+    mobileMenu.style.top = '64px';
+  } else {
+    nav.classList.remove('scrolled');
+    mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+  }
+});
+
+// ── Mobile Menu Toggle ────────────────────────────────────────────────────
+const menuToggle = document.getElementById('menuToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+const body = document.body;
+
+function toggleMobileMenu() {
+  const isActive = mobileMenu.classList.toggle('active');
+  menuToggle.classList.toggle('active', isActive);
+  menuToggle.setAttribute('aria-expanded', isActive);
+  
+  if (isActive) {
+    body.classList.add('menu-open');
+    body.dataset.scrollY = window.scrollY;
+  } else {
+    body.classList.remove('menu-open');
+    if (body.dataset.scrollY) {
+      window.scrollTo(0, parseInt(body.dataset.scrollY));
+      delete body.dataset.scrollY;
+    }
+  }
+}
+
+menuToggle.addEventListener('click', toggleMobileMenu);
+
+// Close menu when clicking any link with data-close-menu
+document.querySelectorAll('[data-close-menu]').forEach(link => {
+  link.addEventListener('click', () => {
+    if (mobileMenu.classList.contains('active')) {
+      mobileMenu.classList.remove('active');
+      menuToggle.classList.remove('active');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      body.classList.remove('menu-open');
+      
+      if (body.dataset.scrollY) {
+        setTimeout(() => {
+          window.scrollTo(0, parseInt(body.dataset.scrollY));
+          delete body.dataset.scrollY;
+        }, 300);
+      }
+    }
+  });
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (mobileMenu.classList.contains('active') && 
+      !mobileMenu.contains(e.target) && 
+      !menuToggle.contains(e.target)) {
+    mobileMenu.classList.remove('active');
+    menuToggle.classList.remove('active');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    body.classList.remove('menu-open');
+    
+    if (body.dataset.scrollY) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(body.dataset.scrollY));
+        delete body.dataset.scrollY;
+      }, 300);
+    }
+  }
+});
+
+// Close menu on escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+    toggleMobileMenu();
+    menuToggle.focus();
+  }
+});
+
+// Handle window resize - close menu if switching to desktop
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+    mobileMenu.classList.remove('active');
+    menuToggle.classList.remove('active');
+    body.classList.remove('menu-open');
+  }
+  
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 50) {
+    mobileMenu.style.top = '64px';
+  } else {
+    mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+  }
+});
+
+// ── Auth Helpers (REAL API ONLY) ──────────────────────────────────────────
+const Auth = {
+  getToken() { 
+    return localStorage.getItem('dc_token') || sessionStorage.getItem('dc_token') || ''; 
+  },
+  getUser() { 
+    try { 
+      const userStr = localStorage.getItem('dc_user') || sessionStorage.getItem('dc_user');
+      return userStr ? JSON.parse(userStr) : null; 
+    } catch { return null; } 
+  },
+  isLoggedIn() { 
+    return !!this.getToken() && !!this.getUser(); 
+  },
+  async fetchUser() {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const res = await fetch(CONFIG.API + CONFIG.ENDPOINTS.USER, {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Auth failed');
+      const data = await res.json();
+      return data.user || data;
+    } catch (e) {
+      console.warn('Failed to fetch user:', e.message);
+      return null;
+    }
+  }
+};
+
+async function logout() { 
+  const token = Auth.getToken();
+  if (token) {
+    try {
+      await fetch(CONFIG.API + CONFIG.ENDPOINTS.LOGOUT, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (e) {
+      console.warn('Logout API call failed:', e.message);
+    }
+  }
+  localStorage.removeItem('dc_token');
+  localStorage.removeItem('dc_user');
+  sessionStorage.removeItem('dc_token');
+  sessionStorage.removeItem('dc_user');
+  updateAuthUI();
+  if (mobileMenu.classList.contains('active')) {
+    mobileMenu.classList.remove('active');
+    menuToggle.classList.remove('active');
+    body.classList.remove('menu-open');
+  }
+  window.location.href = 'index.html';
+}
+
+// ── UI Update Functions ───────────────────────────────────────────────────
+async function updateAuthUI() {
+  const isLoggedIn = Auth.isLoggedIn();
+  const user = Auth.getUser();
+  
+  if (isLoggedIn && user) {
+    // Desktop: Show profile, hide auth buttons
+    document.getElementById('authButtons').classList.add('hidden');
+    document.getElementById('profileWrapper').style.display = 'block';
+    
+    // Mobile: Show profile section, hide auth buttons
+    document.getElementById('mobileAuthButtons').classList.add('hidden');
+    document.getElementById('mobileProfileSection').classList.add('visible');
+    
+    // Show auth-only elements
+    document.querySelectorAll('.auth-only').forEach(el => {
+      el.style.display = el.tagName === 'LI' ? 'block' : 'inline-flex';
+      if (el.classList.contains('mobile-nav-link')) {
+        el.classList.add('visible');
+      }
+    });
+    
+    // Update desktop profile button
+    const profileBtn = document.getElementById('profileBtn');
+    if (user.avatar) {
+      profileBtn.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+    } else {
+      const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+      profileBtn.textContent = initial;
+    }
+    
+    // Update mobile profile section
+    const mobileAvatar = document.getElementById('mobileProfileAvatar');
+    const mobileName = document.getElementById('mobileProfileName');
+    const mobileEmail = document.getElementById('mobileProfileEmail');
+    
+    if (user.avatar) {
+      mobileAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.name || 'User'}">`;
+    } else {
+      const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+      mobileAvatar.textContent = initial;
+    }
+    mobileName.textContent = user.name || user.email || 'User';
+    mobileEmail.textContent = user.email || '';
+    
+  } else {
+    // Desktop: Show auth buttons, hide profile
+    document.getElementById('authButtons').classList.remove('hidden');
+    document.getElementById('profileWrapper').style.display = 'none';
+    
+    // Mobile: Show auth buttons, hide profile section
+    document.getElementById('mobileAuthButtons').classList.remove('hidden');
+    document.getElementById('mobileProfileSection').classList.remove('visible');
+    
+    // Hide auth-only elements
+    document.querySelectorAll('.auth-only').forEach(el => {
+      el.style.display = 'none';
+      if (el.classList.contains('mobile-nav-link')) {
+        el.classList.remove('visible');
+      }
+    });
+  }
+}
+
+// ── Profile Dropdown Toggle (Desktop) ─────────────────────────────────────
+document.getElementById('profileBtn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const dropdown = document.getElementById('profileDropdown');
+  dropdown.classList.toggle('active');
+});
+
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('profileDropdown');
+  const profileBtn = document.getElementById('profileBtn');
+  if (dropdown && !profileBtn?.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove('active');
+  }
+});
+
+document.getElementById('dropdownLogout')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  logout();
+});
+
+document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  logout();
+});
+
+// ── REAL API Fetch (NO DEMO/FALLBACK) ─────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const headers = { 
+    'Content-Type': 'application/json', 
+    ...(opts.headers || {}) 
+  };
+  const token = Auth.getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(CONFIG.API + path, { 
+    ...opts, 
+    headers,
+    credentials: 'include'
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.error || json.message || `Error ${res.status}`);
+  }
+  return json;
+}
+
+// ── Toast Notification ────────────────────────────────────────────────────
+function showToast(msg, type = 'default') {
+  let toast = document.getElementById('toast');
+  
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);
+      padding:0.9rem 1.8rem;border-radius:9999px;font-size:0.9rem;font-weight:500;
+      z-index:9999;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      white-space:nowrap;color:#fff;display:flex;align-items:center;gap:0.6rem;
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);backdrop-filter:blur(10px);
+      font-family:'Plus Jakarta Sans',sans-serif;max-width:90vw;
+    `;
+    document.body.appendChild(toast);
+  }
+  
+  toast.className = type;
+  toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i> ${msg}`;
+  toast.style.display = 'flex';
+  
+  requestAnimationFrame(() => toast.classList.add('show'));
+  
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 3500);
+}
+
+// ── Get Service ID from URL ───────────────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const serviceId = urlParams.get('id');
+
+let serviceData = null;
+let customizationOptions = [];
+
+// ── Load Service Data (REAL API ONLY) ─────────────────────────────────────
+async function loadService() {
+  const loadingEl = document.getElementById('loading');
+  
+  try {
+    if (!serviceId) {
+      throw new Error('Service ID not provided');
+    }
+    
+    console.log('🔄 Loading service ID:', serviceId);
+    
+    // Get service details from REAL API
+    const serviceDataJson = await apiFetch(`${CONFIG.ENDPOINTS.SERVICE}/${serviceId}`);
+    
+    serviceData = serviceDataJson.service || serviceDataJson.data;
+    
+    console.log('✅ Service loaded:', serviceData);
+    
+    if (!serviceData) {
+      throw new Error('Service not found');
+    }
+    
+    // Get customization options (optional endpoint)
+    try {
+      const optionsRes = await fetch(`${CONFIG.API}/service/${serviceId}/options`);
+      if (optionsRes.ok) {
+        const optionsData = await optionsRes.json();
+        customizationOptions = optionsData.data?.options || [];
+        console.log('✅ Customization options:', customizationOptions);
+      }
+    } catch (optionsErr) {
+      console.log('ℹ️ No customization options available');
+      customizationOptions = [];
+    }
+    
+    renderForm();
+    
+  } catch (error) {
+    console.error('❌ Error loading service:', error);
+    
+    const card = document.getElementById('customization-card');
+    card.innerHTML = `
+      <div class="error-state animate-on-scroll visible">
+        <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3>Service Not Found</h3>
+        <p>${error.message || 'An unexpected error occurred'}</p>
+        <a href="services.html" class="btn-primary" style="text-decoration:none;">
+          <i class="fas fa-arrow-left"></i> Back to Services
+        </a>
+      </div>
+    `;
+  }
+}
+
+// ── Render Customization Form ─────────────────────────────────────────────
+function renderForm() {
+  const card = document.getElementById('customization-card');
+  
+  if (!serviceData) {
+    console.error('❌ serviceData is null in renderForm');
+    card.innerHTML = `
+      <div class="error-state animate-on-scroll visible">
+        <div class="icon"><i class="fas fa-times-circle"></i></div>
+        <h3>Error Loading Data</h3>
+        <p>Service data not available. Please try again.</p>
+        <a href="services.html" class="btn-primary" style="text-decoration:none;">
+          <i class="fas fa-arrow-left"></i> Back to Services
+        </a>
+      </div>
+    `;
+    return;
+  }
+  
+  const basePrice = parseFloat(serviceData.price || 0);
+  const advanceAmount = Math.round(basePrice * 0.15 * 100) / 100; // 15% advance
+  
+  const html = `
+    <!-- Service Header -->
+    <div class="service-header animate-on-scroll">
+      <div class="service-icon">${serviceData.emoji || '💻'}</div>
+      <div>
+        <h2 class="service-title">${escapeHtml(serviceData.title || 'Service')}</h2>
+        <p class="service-price">₹${basePrice.toLocaleString()} <span style="font-size:0.9rem;font-weight:400;color:var(--text-muted)">starting</span></p>
+      </div>
+    </div>
+    
+    <!-- Payment Info Card -->
+    <div class="payment-info animate-on-scroll">
+      <div class="info-text">
+        <i class="fas fa-shield-alt"></i>
+        <span>Pay only 15% advance to confirm your order</span>
+      </div>
+      <div class="advance-amount">₹${advanceAmount.toLocaleString()}</div>
+    </div>
+    
+    <!-- Progress Indicator -->
+    <div class="progress-container animate-on-scroll">
+      <div class="progress-header">
+        <span class="progress-title">Customization Progress</span>
+        <span class="progress-percent" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+    
+    <!-- Form -->
+    <form id="customizationForm">
+      <!-- Customization Options Section -->
+      ${customizationOptions.length > 0 ? `
+        <div class="form-section animate-on-scroll">
+          <h3 class="form-section-title"><i class="fas fa-sliders-h"></i> Customize Your Service</h3>
+          ${customizationOptions.map((field, index) => renderField(field, index)).join('')}
+        </div>
+      ` : ''}
+      
+      <!-- Additional Requirements Section -->
+      <div class="form-section animate-on-scroll">
+        <h3 class="form-section-title"><i class="fas fa-comment-alt"></i> Project Details</h3>
+        
+        <div class="form-group">
+          <label class="required"><i class="fas fa-align-left"></i> Additional Requirements</label>
+          <textarea id="requirements" name="requirements" rows="5" placeholder="Tell us more about your project requirements, timeline, specific features you need, etc..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-calendar"></i> Preferred Timeline</label>
+          <select id="timeline" name="timeline">
+            <option value="">Select timeline...</option>
+            <option value="urgent">🔥 Urgent (1-2 weeks)</option>
+            <option value="standard" selected>⚡ Standard (3-4 weeks)</option>
+            <option value="flexible">🐌 Flexible (5-8 weeks)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-file-alt"></i> Reference Materials</label>
+          <input type="text" id="references" name="references" placeholder="Links to designs, docs, or examples (optional)">
+        </div>
+      </div>
+      
+      <!-- Terms & Submit -->
+      <div class="form-section animate-on-scroll">
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">I agree to the <a href="#" style="color:var(--accent);text-decoration:none">Terms of Service</a> and understand that a 15% advance payment is required to confirm the order.</label>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <i class="fas fa-rocket"></i> Continue to Payment (₹${advanceAmount})
+        </button>
+        <button type="button" class="btn-secondary" onclick="window.location.href='services.html'">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </form>
+  `;
+  
+  card.innerHTML = html;
+  
+  // Attach form submit handler
+  document.getElementById('customizationForm')?.addEventListener('submit', handleProceedToPayment);
+  
+  // Add event listeners for progress tracking
+  document.querySelectorAll('#customizationForm input, #customizationForm select, #customizationForm textarea').forEach(el => {
+    el.addEventListener('change', updateProgress);
+    el.addEventListener('input', updateProgress);
+  });
+  
+  // Add event listeners for tag selection
+  document.querySelectorAll('.tag-option').forEach(tag => {
+    tag.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      updateProgress();
+    });
+  });
+  
+  // Initial progress update
+  updateProgress();
+  
+  // Trigger animations
+  setTimeout(() => {
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+      el.classList.add('visible');
+    });
+  }, 100);
+}
+
+// ── Escape HTML Function ───────────────────────────────────────────────────
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ── Render Individual Field ───────────────────────────────────────────────
+function renderField(field, index) {
+  const fieldId = `field_${field.label.replace(/\s+/g, '_').toLowerCase()}`;
+  const isRequired = field.required ? 'required' : '';
+  const requiredClass = field.required ? 'required' : '';
+  
+  switch(field.type) {
+    case 'select':
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <label class="${requiredClass}"><i class="fas fa-chevron-down"></i> ${escapeHtml(field.label)}</label>
+          <select id="${fieldId}" name="${escapeHtml(field.label)}" ${isRequired}>
+            <option value="">Select ${escapeHtml(field.label.toLowerCase())}...</option>
+            ${(field.options || []).map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join('')}
+          </select>
+        </div>
+      `;
+      
+    case 'textarea':
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <label class="${requiredClass}"><i class="fas fa-align-left"></i> ${escapeHtml(field.label)}</label>
+          <textarea id="${fieldId}" name="${escapeHtml(field.label)}" rows="3" ${isRequired} placeholder="Enter ${escapeHtml(field.label.toLowerCase())}..."></textarea>
+        </div>
+      `;
+      
+    case 'checkbox':
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <div class="checkbox-group">
+            <input type="checkbox" id="${fieldId}" name="${escapeHtml(field.label)}" ${field.default ? 'checked' : ''} ${isRequired}>
+            <label for="${fieldId}">${escapeHtml(field.label)}</label>
+          </div>
+        </div>
+      `;
+      
+    case 'radio':
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <label class="${requiredClass}"><i class="fas fa-dot-circle"></i> ${escapeHtml(field.label)}</label>
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            ${(field.options || []).map((opt, i) => `
+              <div class="radio-group">
+                <input type="radio" id="${fieldId}_${i}" name="${escapeHtml(field.label)}" value="${escapeHtml(opt)}" ${field.default === opt ? 'checked' : ''} ${isRequired}>
+                <label for="${fieldId}_${i}">${escapeHtml(opt)}</label>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+    case 'tags':
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <label class="${requiredClass}"><i class="fas fa-tags"></i> ${escapeHtml(field.label)}</label>
+          <div class="tags-container">
+            ${(field.options || []).map(opt => `
+              <span class="tag-option" data-value="${escapeHtml(opt)}">${escapeHtml(opt)}</span>
+            `).join('')}
+          </div>
+          <input type="hidden" id="${fieldId}" name="${escapeHtml(field.label)}">
+        </div>
+      `;
+      
+    default:
+      return `
+        <div class="form-group" style="animation-delay: ${index * 0.05}s">
+          <label class="${requiredClass}"><i class="fas fa-i-cursor"></i> ${escapeHtml(field.label)}</label>
+          <input type="text" id="${fieldId}" name="${escapeHtml(field.label)}" placeholder="Enter ${escapeHtml(field.label.toLowerCase())}..." ${isRequired}>
+        </div>
+      `;
+  }
+}
+
+// ── Update Progress Bar ───────────────────────────────────────────────────
+function updateProgress() {
+  const form = document.getElementById('customizationForm');
+  if (!form) return;
+  
+  const inputs = form.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select, textarea');
+  const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked');
+  const selectedTags = form.querySelectorAll('.tag-option.selected');
+  
+  let completed = checkboxes.length + selectedTags.length;
+  let total = inputs.length + form.querySelectorAll('input[type="checkbox"], input[type="radio"]').length + form.querySelectorAll('.tag-option').length / 2;
+  
+  // Add requirements field
+  if (document.getElementById('requirements')?.value.trim()) {
+    completed += 1;
+    total += 1;
+  }
+  
+  const percent = total > 0 ? Math.min(Math.round((completed / total) * 100), 100) : 0;
+  
+  document.getElementById('progressFill').style.width = `${percent}%`;
+  document.getElementById('progressPercent').textContent = `${percent}%`;
+}
+
+// ── Collect Form Data ─────────────────────────────────────────────────────
+function collectFormData() {
+  const customization = {};
+  
+  customizationOptions.forEach(field => {
+    const fieldId = `field_${field.label.replace(/\s+/g, '_').toLowerCase()}`;
+    const element = document.getElementById(fieldId);
+    
+    if (element) {
+      if (element.type === 'checkbox') {
+        customization[field.label] = element.checked;
+      } else if (element.type === 'radio') {
+        const form = document.getElementById('customizationForm');
+        const checked = form.querySelector(`input[name="${field.label}"]:checked`);
+        customization[field.label] = checked?.value || '';
+      } else if (element.type === 'text' && element.classList.contains('tag-option')) {
+        // Tag handling
+        const selected = Array.from(document.querySelectorAll(`.tag-option.selected`))
+          .map(tag => tag.dataset.value);
+        customization[field.label] = selected.join(', ');
+      } else {
+        customization[field.label] = element.value;
+      }
+    }
+    
+    // Handle tag selections for tags type
+    const tagInput = document.getElementById(fieldId);
+    if (tagInput && field.type === 'tags') {
+      const selected = Array.from(document.querySelectorAll(`.tag-option.selected`))
+        .map(tag => tag.dataset.value);
+      customization[field.label] = selected.join(', ');
+    }
+  });
+  
+  return {
+    customization: customization,
+    requirements: document.getElementById('requirements')?.value.trim() || '',
+    timeline: document.getElementById('timeline')?.value || '',
+    references: document.getElementById('references')?.value.trim() || ''
+  };
+}
+
+// ── Handle Proceed to Payment ─────────────────────────────────────────────
+async function handleProceedToPayment(e) {
+  e.preventDefault();
+  
+  const submitBtn = document.getElementById('submitBtn');
+  const originalText = submitBtn.innerHTML;
+  
+  // Validate terms
+  if (!document.getElementById('terms')?.checked) {
+    showToast('Please agree to the Terms of Service to continue', 'error');
+    return;
+  }
+  
+  // Validate requirements
+  const requirements = document.getElementById('requirements')?.value.trim();
+  if (!requirements) {
+    showToast('Please provide project requirements', 'error');
+    document.getElementById('requirements')?.focus();
+    return;
+  }
+  
+  // Get token - REAL AUTH CHECK
+  const token = Auth.getToken();
+  
+  if (!token) {
+    showToast('Please login to continue', 'error');
+    setTimeout(() => {
+      window.location.href = `login.html?redirect=order-customize.html?id=${serviceId}`;
+    }, 1500);
+    return;
+  }
+  
+  // Collect form data
+  const formData = collectFormData();
+  const basePrice = parseFloat(serviceData.price || 0);
+  const advanceAmount = Math.round(basePrice * 0.15 * 100) / 100;
+  
+  // Store customization data in localStorage for checkout
+  const checkoutData = {
+    service_id: parseInt(serviceId),
+    service_title: serviceData.title,
+    total_price: basePrice,
+    advance: advanceAmount,
+    customization: formData.customization,
+    requirements: formData.requirements,
+    timeline: formData.timeline,
+    references: formData.references,
+    timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('pending_customization', JSON.stringify(checkoutData));
+  localStorage.setItem('pending_order_data', JSON.stringify(checkoutData));
+  
+  console.log('📦 Stored customization data:', checkoutData);
+  
+  // Show loading state
+  submitBtn.disabled = true;
+  submitBtn.classList.add('loading');
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing checkout...';
+  
+  // Redirect to checkout
+  setTimeout(() => {
+    window.location.href = `checkout.html?service_id=${serviceId}&title=${encodeURIComponent(serviceData.title)}&price=${basePrice}&custom=1`;
+  }, 500);
+}
+
+// ── Initialize ────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // Refresh user data if logged in
+  if (Auth.isLoggedIn()) {
+    const freshUser = await Auth.fetchUser();
+    if (freshUser) {
+      localStorage.setItem('dc_user', JSON.stringify(freshUser));
+    }
+  }
+  await updateAuthUI();
+  loadService();
+  
+  // Handle window resize for mobile menu position
+  window.addEventListener('resize', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+      mobileMenu.style.top = '64px';
+    } else {
+      mobileMenu.style.top = window.innerWidth <= 768 ? '68px' : '72px';
+    }
+    if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+      mobileMenu.classList.remove('active');
+      menuToggle.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+  });
+  
+  document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden && Auth.isLoggedIn()) {
+      await updateAuthUI();
+    }
+  });
+});
+
+// ── Scroll Animation Observer ─────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+// Observe animate-on-scroll elements
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+});
+
+// ── Keyboard Shortcuts ────────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter to submit form
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const form = document.getElementById('customizationForm');
+    if (form) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  }
+  
+  // Escape to go back
+  if (e.key === 'Escape') {
+    window.location.href = 'services.html';
+  }
+});
+
+// Prevent zoom on double-tap for iOS
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(event) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+</script>
+</body>
+</html>
